@@ -1,7 +1,7 @@
 # upgrade-testing
 
 Objective:
-* Create a skeleton upgrade test with collarborative feedback from partners
+* Create a skeleton upgrade test with collaborative feedback from partners
   * Install magento 
   * Configure magento 
   * Set up store / Add data 
