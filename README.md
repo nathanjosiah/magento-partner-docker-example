@@ -2,11 +2,11 @@
 
 Objective:
 * Create a skeleton upgrade test with collarborative feedback from partners
-  ** Install magento 
-  ** Configure magento 
-  ** Set up store / Add data 
-  ** Upgrade magento 
-  ** Assertion on data 
+  * Install magento 
+  * Configure magento 
+  * Set up store / Add data 
+  * Upgrade magento 
+  * Assertion on data 
  * Time permitting expand to additional configurations / versions / scenarios
 
 Requirements:
