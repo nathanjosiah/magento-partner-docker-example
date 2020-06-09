@@ -14,7 +14,7 @@ docker build -t php-cli ./php-cli
 info 'Building PHP FPM'
 docker build -t mage-php-fpm ./php-fpm
 info 'Building Nginx'
-docker build -t mage-nginx ./nginx
+docker build -t magento ./nginx
 info 'Building Mariadb'
 docker build -t db ./db
 
@@ -30,8 +30,8 @@ PHP_CONTAINER=$(docker run --rm -d \
   --name fpm \
   --network cicd \
   -v mage:/themount\
+  -w=/themount/magento-ce\
   mage-php-fpm)
-docker exec $PHP_CONTAINER ls -s /themount/magento-ce /var/www/html
 
 info 'Running mariadb'
 docker run --rm -d \
@@ -56,13 +56,11 @@ docker run --rm \
 info 'Running Nginx'
 MAGENTO_CONTAINER=$(docker run --rm -d \
   --network cicd \
-  --name mage-nginx \
-  -v mage:/themount mage-nginx
+  --name magento \
+  -v mage:/themount magento
 )
-docker exec $MAGENTO_CONTAINER mkdir /app
-docker exec $MAGENTO_CONTAINER ls -s /themount/magento-ce /app
 
 info 'Accessing magento'
 echo -en "\033[0;33m"\
-  && docker run --network cicd --rm curlimages/curl http://mage-nginx/magento_version/ \
+  && docker run --network cicd --rm curlimages/curl -s http://magento/magento_version/ \
   && echo -en "\033[0m"
