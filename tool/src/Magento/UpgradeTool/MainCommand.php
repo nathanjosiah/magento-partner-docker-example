@@ -34,12 +34,15 @@ class MainCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->output = $output;
+        $composerUsername = getenv('COMPOSER_USERNAME');
+        $composerPassword = getenv('COMPOSER_PASSWORD');
+        $userPassword = getenv('ADMIN_PASSWORD');
+        $adminEmail = getenv('ADMIN_EMAIL');
 
         if (!file_exists('/magento/magento-ce/vendor')) {
             $this->log('Installing Magento 2.3.4 package.');
             mkdir('/magento/.composer');
-            $composerUsername = getenv('COMPOSER_USERNAME');
-            $composerPassword = getenv('COMPOSER_PASSWORD');
+
             file_put_contents('/magento/.composer/auth.json',
                 <<<COMPOSER
   {
@@ -58,8 +61,6 @@ COMPOSER
             `chmod -R 777 /magento/magento-ce`;
             $this->log('Installing Magento');
 
-            $userPassword = getenv('ADMIN_PASSWORD');
-            $adminEmail = getenv('ADMIN_EMAIL');
             $this->runPhp('php /magento/magento-ce/bin/magento setup:install \
             --admin-firstname=Nathan \
             --admin-lastname=Smith \
@@ -91,6 +92,17 @@ COMPOSER
         $this->log((string)$return, 'yellow');
 
         $this->log('Setting up MFTF');
+        file_put_contents('/magento/magento-ce/dev/tests/acceptance/.env', <<<ENV
+MAGENTO_BASE_URL=http://magento/
+MAGENTO_BACKEND_NAME=admin
+MAGENTO_ADMIN_USERNAME=admin
+MAGENTO_ADMIN_PASSWORD=$userPassword
+BROWSER=chrome
+MODULE_WHITELIST=Magento_Framework,Magento_ConfigurableProductWishlist,Magento_ConfigurableProductCatalogSearch
+DEFAULT_TIMEZONE=America/Chicago
+SELENIUM_HOST=selenium
+ENV
+        );
         $this->runPhp('php /magento/magento-ce/vendor/bin/mftf reset --hard');
         $this->runPhp('php /magento/magento-ce/vendor/bin/mftf build:project');
         $this->runPhp('php /magento/magento-ce/bin/magento config:set admin/security/admin_account_sharing 1');
