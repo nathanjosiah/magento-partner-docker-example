@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ ! -d /magento/magento-ce ]]; then
+if [[ ! -d /magento/magento-ce/vendor ]]; then
   echo -e "\033[0;34m" Installing Magento 2.3.4 package. "\033[0m"
   # docker run --rm -v mage:/magento alpine/git clone --depth 1 --branch  /magento/magento-ce
   mkdir /magento/.composer
@@ -15,11 +15,11 @@ if [[ ! -d /magento/magento-ce ]]; then
   }
 COMPOSER
 
-  docker run --rm \
-    -v mage:/magento \
-    -e COMPOSER_HOME=/magento/.composer \
-    magento/magento-cloud-docker-php:7.2-cli-1.2 \
-    composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition:2.3.4 /magento/magento-ce
+docker run --rm \
+  -v mage:/magento \
+  -e COMPOSER_HOME=/magento/.composer \
+  magento/magento-cloud-docker-php:7.2-cli-1.2 \
+  composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition:2.3.4 /magento/magento-ce
 
   echo -e "\033[0;34m" Running highly unsafe permision change to 777 for everything for now. "\033[0m"
   chmod -R 777 /magento/magento-ce
