@@ -1,0 +1,17 @@
+{
+    "name": "magento/upgrade-testing-tool",
+    "autoload": {
+        "psr-4": {
+            "Magento\\": "Magento/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Nathan Smith",
+            "email": "nathsmit@adobe.com"
+        }
+    ],
+    "require": {
+        "symfony/console": "^5.0"
+    }
+}
