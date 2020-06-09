@@ -35,7 +35,7 @@ class MainCommand extends Command
     {
         $this->output = $output;
 
-        if (!file_exists('/magento/magento-ce/')) {
+        if (!file_exists('/magento/magento-ce/vendor')) {
             $this->log('Installing Magento 2.3.4 package.');
             mkdir('/magento/.composer');
             $composerUsername = getenv('COMPOSER_USERNAME');
@@ -45,8 +45,8 @@ class MainCommand extends Command
   {
       "http-basic": {
       "repo.magento.com": {
-          "username": "${$composerUsername}",
-              "password": "${$composerPassword}"
+          "username": "${composerUsername}",
+              "password": "${composerPassword}"
           }
       }
   }
@@ -60,7 +60,7 @@ COMPOSER
 
             $userPassword = getenv('ADMIN_PASSWORD');
             $adminEmail = getenv('ADMIN_EMAIL');
-            $this->runPhp('/magento/magento-ce/bin/magento setup:install \
+            $this->runPhp('php /magento/magento-ce/bin/magento setup:install \
             --admin-firstname=Nathan \
             --admin-lastname=Smith \
             --admin-email=' . $adminEmail . ' \
@@ -91,10 +91,10 @@ COMPOSER
         $this->log((string)$return, 'yellow');
 
         $this->log('Setting up MFTF');
-        $this->runPhp('/magento/magento-ce/vendor/bin/mftf reset --hard');
-        $this->runPhp('/magento/magento-ce/vendor/bin/mftf build:project');
-        $this->runPhp('/magento/magento-ce/bin/magento config:set admin/security/admin_account_sharing 1');
-        $this->runPhp('/magento/magento-ce/bin/magento config:set admin/security/use_form_key 0');
+        $this->runPhp('php /magento/magento-ce/vendor/bin/mftf reset --hard');
+        $this->runPhp('php /magento/magento-ce/vendor/bin/mftf build:project');
+        $this->runPhp('php /magento/magento-ce/bin/magento config:set admin/security/admin_account_sharing 1');
+        $this->runPhp('php /magento/magento-ce/bin/magento config:set admin/security/use_form_key 0');
         $this->log('Fixing bad composer requirement for 2.3.4');
         $this->runPhp('composer require -d /magento/magento-ce symfony/http-foundation ^4.0');
 
@@ -102,7 +102,7 @@ COMPOSER
         `docker run --name selenium --rm -d --network cicd -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome-debug:3.141.59-gold`;
 
         $this->log('Running AdminLoginTest');
-        $this->runPhp('/magento/magento-ce/vendor/bin/mftf run:test AdminLoginTest');
+        $this->runPhp('php /magento/magento-ce/vendor/bin/mftf run:test AdminLoginTest');
 
         return 0;
     }
@@ -113,11 +113,13 @@ COMPOSER
     }
     private function runPhp(string $command): void
     {
-        // passthru will stream the output in real time without modification
-        passthru('docker run --rm \
+        $full = 'docker run --rm \
             --network cicd\
             -e COMPOSER_HOME=/magento/.composer\
             -v mage:/magento magento/magento-cloud-docker-php:7.2-cli-1.2\
-            php ' . $command);
+            ' . $command;
+        $this->log('Running:' . $full, 'white');
+        // passthru will stream the output in real time without modification
+        passthru($full);
     }
 }

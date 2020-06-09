@@ -10,7 +10,7 @@ RUN apt-get -y install docker-ce
 RUN echo $(which docker)
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 COPY ./src /app
-RUN composer install -d /app
+RUN /usr/bin/composer install -d /app
 
 WORKDIR /app
 ENTRYPOINT ["php","/app/bin/cli.php"]
