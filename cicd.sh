@@ -63,4 +63,9 @@ MAGENTO_CONTAINER=$(docker run --rm -d \
 info 'Accessing magento'
 echo -en "\033[0;33m"\
   && docker run --network cicd --rm curlimages/curl -s http://magento/magento_version/ \
-  && echo -en "\033[0m"
+  && echo -e "\033[0m"
+
+info 'Getting a guest cart'
+echo -en "\033[0;33m"\
+  && docker run --network cicd --rm curlimages/curl -s -X POST http://magento/rest/V1/guest-carts \
+  && echo -e "\033[0m"
