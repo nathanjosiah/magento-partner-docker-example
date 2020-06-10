@@ -50,7 +50,30 @@ MAGENTO_CONTAINER=$(docker run --rm -d \
   -v mage:/themount magento
 )
 
-info 'Running Tool'
+info 'Running Tool Unit Tests'
+docker run --rm --name tool tool self:run-tests
+
+info 'Running Tool - Setup Magento'
+docker run --rm \
+  --name tool \
+  --network cicd \
+  --env-file .env \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v mage:/magento \
+  tool \
+  setup:install
+
+info 'Running Tool - Verify Setup'
+docker run --rm \
+  --name tool \
+  --network cicd \
+  --env-file .env \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v mage:/magento \
+  tool \
+  setup:verify
+
+info 'Running Tool - Run Test'
 docker run --rm \
   --name tool \
   --network cicd \

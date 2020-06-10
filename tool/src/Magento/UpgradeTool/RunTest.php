@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class MainCommand extends Command
+class RunTest extends Command
 {
     protected static $defaultName = 'test:run';
 
@@ -34,62 +34,7 @@ class MainCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->output = $output;
-        $composerUsername = getenv('COMPOSER_USERNAME');
-        $composerPassword = getenv('COMPOSER_PASSWORD');
         $userPassword = getenv('ADMIN_PASSWORD');
-        $adminEmail = getenv('ADMIN_EMAIL');
-
-        if (!file_exists('/magento/magento-ce/vendor')) {
-            $this->log('Installing Magento 2.3.4 package.');
-            mkdir('/magento/.composer');
-
-            file_put_contents('/magento/.composer/auth.json',
-                <<<COMPOSER
-  {
-      "http-basic": {
-      "repo.magento.com": {
-          "username": "${composerUsername}",
-              "password": "${composerPassword}"
-          }
-      }
-  }
-COMPOSER
-            );
-            $this->runPhp('composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition:2.3.4 /magento/magento-ce');
-
-            $this->log('Running highly unsafe permision change to 777 for everything for now.');
-            `chmod -R 777 /magento/magento-ce`;
-            $this->log('Installing Magento');
-
-            $this->runPhp('php /magento/magento-ce/bin/magento setup:install \
-            --admin-firstname=Nathan \
-            --admin-lastname=Smith \
-            --admin-email=' . $adminEmail . ' \
-            --admin-user=admin \
-            --admin-password=' . $userPassword . ' \
-            --base-url=http://magento/ \
-            --db-host=db \
-            --db-name=main \
-            --db-user=root \
-            --db-password=secretpw \
-            --currency=USD \
-            --timezone=America/Chicago \
-            --language=en_US \
-            --use-rewrites=1 \
-            --backend-frontname=\'admin\'
-            ');
-
-            $this->runPhp('php /magento/magento-ce/bin/magento de:mo:set production');
-        }
-
-        $this->log('Accessing magento');
-
-        $return = `docker run --network cicd --rm curlimages/curl -s http://magento/magento_version/`;
-        $this->log((string)$return, 'yellow');
-
-        $this->log('Testing guest cart creation');
-        $return = `docker run --network cicd --rm curlimages/curl -s -X POST http://magento/rest/V1/guest-carts`;
-        $this->log((string)$return, 'yellow');
 
         $this->log('Setting up MFTF');
         file_put_contents('/magento/magento-ce/dev/tests/acceptance/.env', <<<ENV
