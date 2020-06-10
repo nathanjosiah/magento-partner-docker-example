@@ -1,0 +1,1 @@
+FROM magento/magento-cloud-docker-php:7.2-cli-1.2
