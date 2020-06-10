@@ -74,6 +74,17 @@ COMPOSER
         --backend-frontname=\'admin\'
         ');
 
+        $this->runPhp('php /magento/magento-ce/bin/magento de:mo:se production');
+
+        $this->log('Fixing bad composer requirement for 2.3.4');
+        $this->runPhp('composer require -d /magento/magento-ce symfony/http-foundation ^4.0');
+
+        $this->log('Configuring magento for mftf');
+        $this->runPhp('php /magento/magento-ce/vendor/bin/mftf reset --hard');
+        $this->runPhp('php /magento/magento-ce/vendor/bin/mftf build:project');
+        $this->runPhp('php /magento/magento-ce/bin/magento config:set admin/security/admin_account_sharing 1');
+        $this->runPhp('php /magento/magento-ce/bin/magento config:set admin/security/use_form_key 0');
+
         return 0;
     }
 

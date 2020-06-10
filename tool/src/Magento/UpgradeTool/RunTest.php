@@ -48,12 +48,6 @@ DEFAULT_TIMEZONE=America/Chicago
 SELENIUM_HOST=selenium
 ENV
         );
-        $this->runPhp('php /magento/magento-ce/vendor/bin/mftf reset --hard');
-        $this->runPhp('php /magento/magento-ce/vendor/bin/mftf build:project');
-        $this->runPhp('php /magento/magento-ce/bin/magento config:set admin/security/admin_account_sharing 1');
-        $this->runPhp('php /magento/magento-ce/bin/magento config:set admin/security/use_form_key 0');
-        $this->log('Fixing bad composer requirement for 2.3.4');
-        $this->runPhp('composer require -d /magento/magento-ce symfony/http-foundation ^4.0');
 
         $this->log('Running Selenium');
         `docker run --name selenium --rm -d --network cicd -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome-debug:3.141.59-gold`;
