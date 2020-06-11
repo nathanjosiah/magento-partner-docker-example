@@ -9,10 +9,12 @@ export DOCKER_HOST=tcp://localhost:12375
 
 info 'Building Tool'
 docker build -t tool ./tool
-info 'Building PHP CLI'
-docker build -t php-cli ./php-cli
-info 'Building PHP FPM'
-docker build -t mage-php-fpm ./php-fpm
+info 'Pulling PHP images'
+docker pull magento/magento-cloud-docker-php:7.3-cli-1.2
+docker pull magento/magento-cloud-docker-php:7.3-fpm-1.2
+docker pull magento/magento-cloud-docker-php:7.4-cli-1.2
+docker pull magento/magento-cloud-docker-php:7.4-fpm-1.2
+
 info 'Building Nginx'
 docker build -t magento ./nginx
 info 'Building Mariadb'
@@ -24,14 +26,20 @@ docker volume create --name mage
 info 'Create network'
 docker network create --driver bridge cicd
 
-info 'Starting PHP-FPM'
-PHP_CONTAINER=$(docker run --rm -d \
-  -p 9000:9000 \
-  --name fpm \
+info 'Starting PHP-FPM 7.3'
+docker run --rm -d \
+  --name fpm-73 \
   --network cicd \
-  -v mage:/themount\
-  -w=/themount/magento-ce\
-  mage-php-fpm)
+  -v mage:/magento\
+  -w=/magento/magento-ce\
+  magento/magento-cloud-docker-php:7.3-fpm-1.2
+info 'Starting PHP-FPM 7.4'
+docker run --rm -d \
+  --name fpm-74 \
+  --network cicd \
+  -v mage:/magento\
+  -w=/magento/magento-ce\
+  magento/magento-cloud-docker-php:7.4-fpm-1.2
 
 info 'Starting MariaDB'
 docker run --rm -d \
@@ -43,12 +51,25 @@ docker run --rm -d \
   -e MYSQL_DATABASE=main \
   db
 
+#info 'Starting ElasticSearch 6'
+#docker run --rm -d \
+#  --name elasticsearch6 \
+#  -e "discovery.type=single-node"\
+#  elasticsearch:6.8.4
+#
+#info 'Starting ElasticSearch 7'
+#docker run --rm -d \
+#  --name elasticsearch7 \
+#  -e "discovery.type=single-node"\
+#  elasticsearch:7.1.1
+
 info 'Starting Nginx'
-MAGENTO_CONTAINER=$(docker run --rm -d \
+docker run --rm -d \
   --network cicd \
   --name magento \
-  -v mage:/themount magento
-)
+  -e FPM_HOST=fpm-73\
+  -v mage:/magento magento
+
 
 info 'Running Tool Unit Tests'
 docker run --rm --name tool tool self:run-tests
@@ -61,9 +82,9 @@ docker run --rm \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v mage:/magento \
   tool \
-  setup:install
+  setup:install --php 7.3
 
-info 'Running Tool - Verify Setup'
+info 'Running Tool - Verify Setup for 7.3'
 docker run --rm \
   --name tool \
   --network cicd \
@@ -71,14 +92,41 @@ docker run --rm \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v mage:/magento \
   tool \
-  setup:verify
+  setup:verify --php 7.3
 
-info 'Running Tool - Run Test'
-docker run --rm \
+info 'Pulling test php value from config.'
+PHP_VERSION=$(docker run --rm \
   --name tool \
   --network cicd \
   --env-file .env \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v mage:/magento \
   tool \
-  test:run basic-workflow
+  test:config:get-php-version --config /app/etc/config.xml --name BasicUpgradeTest)
+
+echo Got version $PHP_VERSION for BasicUpgradeTest
+
+#info 'Switching php to 7.4'
+#docker exec -it magento sed -i 's/fpm-73:/fpm-74:/' /etc/nginx/conf.d/default.conf
+#docker exec -it magento nginx -s reload
+#
+#info 'Running Tool - Verify Setup for 7.4'
+#docker run --rm \
+#  --name tool \
+#  --network cicd \
+#  --env-file .env \
+#  -v /var/run/docker.sock:/var/run/docker.sock \
+#  -v mage:/magento \
+#  tool \
+#  setup:verify --php 7.4
+#
+#info 'Running Tool - Run Test'
+#docker run --rm \
+#  --name tool \
+#  --network cicd \
+#  --env-file .env \
+#  -v /var/run/docker.sock:/var/run/docker.sock \
+#  -v mage:/magento \
+#  tool \
+#  test:run --php 7.3 basic-workflow
+#

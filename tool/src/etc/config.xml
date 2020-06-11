@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<config>
+    <tests>
+        <test name="BasicUpgradeTest">
+            <annotations>
+                <description>The most basic upgrade</description>
+            </annotations>
+            <fromVersion type="composer">
+                <package>2.3.4</package>
+            </fromVersion>
+            <services>
+                <service name="php">
+                    <arguments>
+                        <argument name="version">7.3</argument>
+                    </arguments>
+                </service>
+            </services>
+        </test>
+    </tests>
+</config>

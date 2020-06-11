@@ -12,18 +12,14 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class VerifySetup extends Command
+class VerifySetup extends AbstractCommand
 {
     protected static $defaultName = 'setup:verify';
 
-    /**
-     * @var OutputInterface
-     */
-    private $output;
-
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->output = $output;
+        parent::execute($input, $output);
+
         $this->log('Accessing magento');
 
         $return = `docker run --network cicd --rm curlimages/curl -s http://magento/magento_version/`;
@@ -34,10 +30,5 @@ class VerifySetup extends Command
         $this->log((string)$return, 'yellow');
 
         return 0;
-    }
-
-    private function log(string $string, string $color = 'blue', bool $newline = true): void
-    {
-        $this->output->writeln('<fg=' . $color . '>' . $string . '</>', OutputInterface::VERBOSITY_NORMAL);
     }
 }
