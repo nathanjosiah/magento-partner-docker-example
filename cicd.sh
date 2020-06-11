@@ -95,35 +95,38 @@ docker run --rm \
   setup:verify --php 7.3
 
 info 'Pulling test php value from config.'
-docker run --rm \
+PHP_VERSION=$(docker run --rm \
   --name tool \
   --network cicd \
   --env-file .env \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v mage:/magento \
   tool \
-  test:config:get-php-version --config /app/etc/config.xml --name BasicUpgradeTest
+  test:config:get-php-version --config /app/etc/config.xml --name BasicUpgradeTest)
 
-info 'Switching php to 7.4'
-docker exec -it magento sed -i 's/fpm-73:/fpm-74:/' /etc/nginx/conf.d/default.conf
-docker exec -it magento nginx -s reload
+echo Got version $PHP_VERSION for BasicUpgradeTest
 
-info 'Running Tool - Verify Setup for 7.4'
-docker run --rm \
-  --name tool \
-  --network cicd \
-  --env-file .env \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v mage:/magento \
-  tool \
-  setup:verify --php 7.4
-
-info 'Running Tool - Run Test'
-docker run --rm \
-  --name tool \
-  --network cicd \
-  --env-file .env \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v mage:/magento \
-  tool \
-  test:run --php 7.3 basic-workflow
+#info 'Switching php to 7.4'
+#docker exec -it magento sed -i 's/fpm-73:/fpm-74:/' /etc/nginx/conf.d/default.conf
+#docker exec -it magento nginx -s reload
+#
+#info 'Running Tool - Verify Setup for 7.4'
+#docker run --rm \
+#  --name tool \
+#  --network cicd \
+#  --env-file .env \
+#  -v /var/run/docker.sock:/var/run/docker.sock \
+#  -v mage:/magento \
+#  tool \
+#  setup:verify --php 7.4
+#
+#info 'Running Tool - Run Test'
+#docker run --rm \
+#  --name tool \
+#  --network cicd \
+#  --env-file .env \
+#  -v /var/run/docker.sock:/var/run/docker.sock \
+#  -v mage:/magento \
+#  tool \
+#  test:run --php 7.3 basic-workflow
+#
