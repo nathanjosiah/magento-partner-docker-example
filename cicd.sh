@@ -67,7 +67,7 @@ info 'Starting Nginx'
 docker run --rm -d \
   --network cicd \
   --name magento \
-  -e FPM_HOST=fpm-73
+  -e FPM_HOST=fpm-73\
   -v mage:/magento magento
 
 
