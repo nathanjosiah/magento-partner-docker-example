@@ -104,7 +104,7 @@ docker run --rm \
   test:config:get-php-version --config /app/etc/config.xml --name BasicUpgradeTest
 
 info 'Switching php to 7.4'
-docker exec -it magento sed -i 's/server fpm-73/server fpm-74/' /etc/nginx/conf.d/default.conf
+docker exec -it magento sed -i 's/fpm-73:/fpm-74:/' /etc/nginx/conf.d/default.conf
 docker exec -it magento nginx reload
 
 info 'Running Tool - Verify Setup for 7.4'
