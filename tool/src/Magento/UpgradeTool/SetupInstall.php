@@ -8,23 +8,23 @@ declare(strict_types=1);
 
 namespace Magento\UpgradeTool;
 
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class SetupInstall extends Command
+class SetupInstall extends AbstractCommand
 {
     protected static $defaultName = 'setup:install';
 
-    /**
-     * @var OutputInterface
-     */
-    private $output;
+    protected function configure()
+    {
+        $this->setDescription('Install magento');
+
+        parent::configure();
+    }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->output = $output;
+        parent::execute($input, $output);
         $composerUsername = getenv('COMPOSER_USERNAME');
         $composerPassword = getenv('COMPOSER_PASSWORD');
         $userPassword = getenv('ADMIN_PASSWORD');
@@ -50,7 +50,7 @@ class SetupInstall extends Command
 }
 COMPOSER
         );
-        $this->runPhp('composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition:2.3.4 /magento/magento-ce');
+        $this->runPhp('composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition:2.3.5 /magento/magento-ce');
 
         $this->log('Running highly unsafe permision change to 777 for everything for now.');
         `chmod -R 777 /magento/magento-ce`;
@@ -76,8 +76,9 @@ COMPOSER
 
         $this->runPhp('php /magento/magento-ce/bin/magento de:mo:se production');
 
-        $this->log('Fixing bad composer requirement for 2.3.4');
-        $this->runPhp('composer require -d /magento/magento-ce symfony/http-foundation ^4.0');
+        // Only applies to magento 2.3.4
+        //$this->log('Fixing bad composer requirement for 2.3.4');
+        //$this->runPhp('composer require -d /magento/magento-ce symfony/http-foundation ^4.0');
 
         $this->log('Configuring magento for mftf');
         $this->runPhp('php /magento/magento-ce/vendor/bin/mftf reset --hard');
@@ -86,21 +87,5 @@ COMPOSER
         $this->runPhp('php /magento/magento-ce/bin/magento config:set admin/security/use_form_key 0');
 
         return 0;
-    }
-
-    private function log(string $string, string $color = 'blue', bool $newline = true): void
-    {
-        $this->output->writeln('<fg=' . $color . '>' . $string . '</>', OutputInterface::VERBOSITY_NORMAL);
-    }
-    private function runPhp(string $command): void
-    {
-        $full = 'docker run --rm \
-            --network cicd\
-            -e COMPOSER_HOME=/magento/.composer\
-            -v mage:/magento magento/magento-cloud-docker-php:7.2-cli-1.2\
-            ' . $command;
-        $this->log('Running:' . $full, 'white');
-        // passthru will stream the output in real time without modification
-        passthru($full);
     }
 }

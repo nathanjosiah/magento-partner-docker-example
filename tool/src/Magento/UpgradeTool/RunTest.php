@@ -13,17 +13,14 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class RunTest extends Command
+class RunTest extends AbstractCommand
 {
     protected static $defaultName = 'test:run';
 
-    /**
-     * @var OutputInterface
-     */
-    private $output;
-
     protected function configure()
     {
+        parent::configure();
+
         $this->addArgument(
             'test-name',
             InputArgument::REQUIRED,
@@ -33,7 +30,7 @@ class RunTest extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->output = $output;
+        parent::execute($input, $output);
         $userPassword = getenv('ADMIN_PASSWORD');
 
         $this->log('Setting up MFTF');
@@ -56,21 +53,5 @@ ENV
         $this->runPhp('php /magento/magento-ce/vendor/bin/mftf run:test AdminLoginTest');
 
         return 0;
-    }
-
-    private function log(string $string, string $color = 'blue', bool $newline = true): void
-    {
-        $this->output->writeln('<fg=' . $color . '>' . $string . '</>', OutputInterface::VERBOSITY_NORMAL);
-    }
-    private function runPhp(string $command): void
-    {
-        $full = 'docker run --rm \
-            --network cicd\
-            -e COMPOSER_HOME=/magento/.composer\
-            -v mage:/magento magento/magento-cloud-docker-php:7.2-cli-1.2\
-            ' . $command;
-        $this->log('Running:' . $full, 'white');
-        // passthru will stream the output in real time without modification
-        passthru($full);
     }
 }
