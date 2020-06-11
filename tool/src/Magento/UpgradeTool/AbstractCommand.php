@@ -52,7 +52,7 @@ class AbstractCommand extends Command
         $full = 'docker run --rm \
             --network cicd\
             -e COMPOSER_HOME=/magento/.composer\
-            -v mage:/magento php-' . str_replace('.', '', ($phpVersion ?: $this->phpVersion)) .'-cli \
+            -v mage:/magento magento/magento-cloud-docker-php:' . ($phpVersion ?: $this->phpVersion) .'-cli-1.2 \
             ' . $command;
         $this->log('Running:' . $full, 'white');
         // passthru will stream the output in real time without modification

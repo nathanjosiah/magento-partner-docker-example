@@ -15,11 +15,6 @@ docker pull magento/magento-cloud-docker-php:7.3-fpm-1.2
 docker pull magento/magento-cloud-docker-php:7.4-cli-1.2
 docker pull magento/magento-cloud-docker-php:7.4-fpm-1.2
 
-info 'Tagging (aliasing) Available PHP Versions'
-docker image tag magento/magento-cloud-docker-php:7.3-cli-1.2 php73-cli
-docker image tag magento/magento-cloud-docker-php:7.3-fpm-1.2 php73-fpm
-docker image tag magento/magento-cloud-docker-php:7.4-cli-1.2 php74-cli
-docker image tag magento/magento-cloud-docker-php:7.4-fpm-1.2 php74-fpm
 info 'Building Nginx'
 docker build -t magento ./nginx
 info 'Building Mariadb'
@@ -37,14 +32,14 @@ docker run --rm -d \
   --network cicd \
   -v mage:/magento\
   -w=/magento/magento-ce\
-  php73-fpm
+  magento/magento-cloud-docker-php:7.3-fpm-1.2
 info 'Starting PHP-FPM 7.4'
 docker run --rm -d \
   --name fpm-74 \
   --network cicd \
   -v mage:/magento\
   -w=/magento/magento-ce\
-  php74-fpm
+  magento/magento-cloud-docker-php:7.4-fpm-1.2
 
 info 'Starting MariaDB'
 docker run --rm -d \
