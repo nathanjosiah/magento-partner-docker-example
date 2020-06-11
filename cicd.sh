@@ -17,9 +17,9 @@ docker pull magento/magento-cloud-docker-php:7.4-fpm-1.2
 
 info 'Tagging (aliasing) Available PHP Versions'
 docker image tag magento/magento-cloud-docker-php:7.3-cli-1.2 php73-cli
-docker image tag php73-fpm magento/magento-cloud-docker-php:7.3-fpm-1.2
-docker image tag php74-cli magento/magento-cloud-docker-php:7.4-cli-1.2
-docker image tag php74-fpm magento/magento-cloud-docker-php:7.4-fpm-1.2
+docker image tag magento/magento-cloud-docker-php:7.3-fpm-1.2 php73-fpm
+docker image tag magento/magento-cloud-docker-php:7.4-cli-1.2 php74-cli
+docker image tag magento/magento-cloud-docker-php:7.4-fpm-1.2 php74-fpm
 info 'Building Nginx'
 docker build -t magento ./nginx
 info 'Building Mariadb'
