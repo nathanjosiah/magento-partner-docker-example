@@ -106,7 +106,7 @@ docker run --rm \
 
 info 'Switching php to 7.4'
 docker exec -it magento sed -i 's/fpm-73:/fpm-74:/' /etc/nginx/conf.d/default.conf
-docker exec -it magento nginx reload
+docker exec -it magento nginx -s reload
 
 info 'Running Tool - Verify Setup for 7.4'
 docker run --rm \
