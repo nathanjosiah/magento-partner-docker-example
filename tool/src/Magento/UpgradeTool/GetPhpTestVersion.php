@@ -40,7 +40,7 @@ class GetPhpTestVersion extends Command
         $dom = new Dom();
         $document = $dom->read(file_get_contents($input->getOption('config')));
         $xpath = new \DOMXPath($document);
-        $result = $xpath->query('//test[@name="' . $input->getOption('name') . '"]/services/service[@name="php"]/arguments/argument[@name="version"]');
+        $result = $xpath->query('.//*[@name="' . $input->getOption('name') . '"]/services/service[@name="php"]/arguments/argument[@name="version"]');
         $output->write($result->item(0)->nodeValue);
 
         return 0;
