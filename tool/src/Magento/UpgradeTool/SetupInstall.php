@@ -35,7 +35,7 @@ class SetupInstall extends AbstractCommand
             return 0;
         }
 
-        $this->log('Installing Magento 2.3.4 package.');
+        $this->log('Installing Magento 2.3.5 package.');
         mkdir('/magento/.composer');
 
         file_put_contents('/magento/.composer/auth.json',
@@ -75,10 +75,6 @@ COMPOSER
         ');
 
         $this->runPhp('php /magento/magento-ce/bin/magento de:mo:se production');
-
-        // Only applies to magento 2.3.4
-        //$this->log('Fixing bad composer requirement for 2.3.4');
-        //$this->runPhp('composer require -d /magento/magento-ce symfony/http-foundation ^4.0');
 
         $this->log('Configuring magento for mftf');
         $this->runPhp('php /magento/magento-ce/vendor/bin/mftf reset --hard');

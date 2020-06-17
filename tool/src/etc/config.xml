@@ -12,12 +12,18 @@
                 <description>The most basic upgrade</description>
             </annotations>
             <fromVersion type="composer">
-                <package>2.3.4</package>
+                <package>2.3.5</package>
+                <edition>ce</edition>
             </fromVersion>
             <services>
                 <service name="php">
                     <arguments>
                         <argument name="version">7.3</argument>
+                    </arguments>
+                </service>
+                <service name="elasticsearch">
+                    <arguments>
+                        <argument name="version">7.1.1</argument>
                     </arguments>
                 </service>
             </services>

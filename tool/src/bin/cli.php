@@ -5,11 +5,11 @@
  */
 
 use Magento\UpgradeTool\GetPhpTestVersion;
+use Magento\UpgradeTool\RunTest;
 use Magento\UpgradeTool\RunUnitTests;
 use Magento\UpgradeTool\SetupInstall;
 use Magento\UpgradeTool\VerifySetup;
 use Symfony\Component\Console\Application;
-use Magento\UpgradeTool\RunTest;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
