@@ -82,7 +82,7 @@ docker run --rm \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v mage:/magento \
   tool \
-  setup:install --php 7.3
+  setup:install --config /app/etc/config.xml --php 7.3
 
 info 'Running Tool - Verify Setup for 7.3'
 docker run --rm \

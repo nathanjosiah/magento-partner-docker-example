@@ -13,6 +13,21 @@
             </annotations>
             <fromVersion type="composer">
                 <package>2.3.4</package>
+                <install>
+                    <admin-firstname>Tanel</admin-firstname>
+                    <admin-lastname>Raja</admin-lastname>
+                    <admin-email>tanel.raja@vaimo.com</admin-email>
+                    <admin-user>admin</admin-user>
+                    <admin-password>admin123</admin-password>
+                    <base-url>http://magento/</base-url>
+                    <db-host>db</db-host>
+                    <db-name>main</db-name>
+                    <db-user>root</db-user>
+                    <currency>USD</currency>
+                    <timezone>America/Chicago</timezone>
+                    <language>en_US</language>
+                    <use-rewrites>1</use-rewrites>
+                </install>
             </fromVersion>
             <services>
                 <service name="php">

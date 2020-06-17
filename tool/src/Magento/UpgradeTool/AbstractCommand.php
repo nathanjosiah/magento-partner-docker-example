@@ -34,6 +34,12 @@ class AbstractCommand extends Command
             InputOption::VALUE_REQUIRED,
             'Which PHP version to use'
         );
+        $this->addOption(
+            'config',
+            'c',
+            InputOption::VALUE_REQUIRED,
+            'The path to the config'
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
