@@ -12,23 +12,31 @@
                 <description>The most basic upgrade</description>
             </annotations>
             <fromVersion type="composer">
-                <package>2.3.5</package>
-                <edition>ce</edition>
-                <install>
-                    <admin-firstname>Tanel</admin-firstname>
-                    <admin-lastname>Raja</admin-lastname>
-                    <admin-email>tanel.raja@vaimo.com</admin-email>
-                    <admin-user>admin</admin-user>
-                    <admin-password>admin123</admin-password>
-                    <base-url>http://magento/</base-url>
-                    <db-host>db</db-host>
-                    <db-name>main</db-name>
-                    <db-user>root</db-user>
-                    <currency>USD</currency>
-                    <timezone>America/Chicago</timezone>
-                    <language>en_US</language>
-                    <use-rewrites>1</use-rewrites>
-                </install>
+                <package>magento/project-community-edition</package>
+                <version>2.3.5</version>
+                <before />
+                <after>
+                    <execute tool="bin/magento">
+                        <command>setup:install</command>
+                        <arguments>
+                            <admin-firstname>Tanel</admin-firstname>
+                            <admin-lastname>Raja</admin-lastname>
+                            <admin-email>tanel.raja@vaimo.com</admin-email>
+                            <admin-user>admin</admin-user>
+                            <admin-password>admin123</admin-password>
+                            <base-url>http://magento/</base-url>
+                            <db-host>db</db-host>
+                            <db-name>main</db-name>
+                            <db-user>root</db-user>
+                            <currency>USD</currency>
+                            <timezone>America/Chicago</timezone>
+                            <language>en_US</language>
+                            <use-rewrites>1</use-rewrites>
+                        </arguments>
+                        <before />
+                        <after />
+                    </execute>
+                </after>
             </fromVersion>
             <services>
                 <service name="php">
