@@ -63,37 +63,6 @@ docker run --rm -d \
 #  -e "discovery.type=single-node"\
 #  elasticsearch:7.1.1
 
-info 'Starting Nginx'
-docker run --rm -d \
-  --network cicd \
-  --name magento \
-  -e FPM_HOST=fpm-73\
-  -v mage:/magento magento
-
-
-info 'Running Tool Unit Tests'
-docker run --rm --name tool tool self:run-tests
-
-info 'Running Tool - Setup Magento'
-docker run --rm \
-  --name tool \
-  --network cicd \
-  --env-file .env \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v mage:/magento \
-  tool \
-  setup:install --config /app/etc/config.xml --php 7.3
-
-info 'Running Tool - Verify Setup for 7.3'
-docker run --rm \
-  --name tool \
-  --network cicd \
-  --env-file .env \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v mage:/magento \
-  tool \
-  setup:verify --php 7.3
-
 info 'Pulling test php value from config.'
 PHP_VERSION=$(docker run --rm \
   --name tool \
@@ -105,6 +74,45 @@ PHP_VERSION=$(docker run --rm \
   test:config:get-php-version --config /app/etc/config.xml --name BasicUpgradeTest)
 
 echo Got version $PHP_VERSION for BasicUpgradeTest
+
+info 'Starting Nginx'
+if [ $PHP_VERSION == 7.3 ]
+then
+docker run --rm -d \
+  --network cicd \
+  --name magento \
+  -e FPM_HOST=fpm-73\
+  -v mage:/magento magento
+else
+docker run --rm -d \
+  --network cicd \
+  --name magento \
+  -e FPM_HOST=fpm-74\
+  -v mage:/magento magento
+fi
+
+info 'Running Tool Unit Tests'
+docker run --rm --name tool tool self:run-tests
+
+info 'Running Tool - Setup Magento for ' $PHP_VERSION
+docker run --rm \
+  --name tool \
+  --network cicd \
+  --env-file .env \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v mage:/magento \
+  tool \
+  setup:install --config /app/etc/config.xml --php $PHP_VERSION
+
+info 'Running Tool - Verify Setup for' $PHP_VERSION
+docker run --rm \
+  --name tool \
+  --network cicd \
+  --env-file .env \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v mage:/magento \
+  tool \
+  setup:verify --php $PHP_VERSION
 
 #info 'Switching php to 7.4'
 #docker exec -it magento sed -i 's/fpm-73:/fpm-74:/' /etc/nginx/conf.d/default.conf
@@ -120,13 +128,12 @@ echo Got version $PHP_VERSION for BasicUpgradeTest
 #  tool \
 #  setup:verify --php 7.4
 #
-#info 'Running Tool - Run Test'
-#docker run --rm \
-#  --name tool \
-#  --network cicd \
-#  --env-file .env \
-#  -v /var/run/docker.sock:/var/run/docker.sock \
-#  -v mage:/magento \
-#  tool \
-#  test:run --php 7.3 basic-workflow
-#
+info 'Running Tool - Run MFTF Test for '$PHP_VERSION
+docker run --rm \
+ --name tool \
+ --network cicd \
+ --env-file .env \
+ -v /var/run/docker.sock:/var/run/docker.sock \
+ -v mage:/magento \
+ tool \
+ test:run --php $PHP_VERSION basic-workflow

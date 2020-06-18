@@ -40,7 +40,7 @@ class SetupInstall extends AbstractCommand
         }
 
         // TODO: Hardcoded version number
-        $this->log('Installing Magento 2.3.4 package.');
+        $this->log('Installing Magento 2.3.5 package.');
         mkdir('/magento/.composer');
 
         file_put_contents('/magento/.composer/auth.json',
@@ -68,11 +68,6 @@ COMPOSER
         $this->runPhp("php /magento/magento-ce/bin/magento setup:install $parameters");
 
         $this->runPhp('php /magento/magento-ce/bin/magento de:mo:se production');
-
-        // Only applies to magento 2.3.4
-        // TODO: maybe implement a mechanism to add version specific stuff to the configuration file?
-        //$this->log('Fixing bad composer requirement for 2.3.4');
-        //$this->runPhp('composer require -d /magento/magento-ce symfony/http-foundation ^4.0');
 
         $this->log('Configuring magento for mftf');
         $this->runPhp('php /magento/magento-ce/vendor/bin/mftf reset --hard');
@@ -130,3 +125,4 @@ COMPOSER
         return implode(' ', $parameters);
     }
 }
+
