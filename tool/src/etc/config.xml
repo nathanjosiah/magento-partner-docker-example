@@ -23,7 +23,7 @@
                 </service>
                 <service name="elasticsearch">
                     <arguments>
-                        <argument name="version">7.1.1</argument>
+                        <argument name="version">7.6-1.2</argument>
                     </arguments>
                 </service>
             </services>
