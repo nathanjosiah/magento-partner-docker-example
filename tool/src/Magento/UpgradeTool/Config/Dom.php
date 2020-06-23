@@ -53,31 +53,44 @@ class Dom
 
     public function getFromVersion($node): \DOMNode
     {
-        return $this->query('//fromVersion', $node)->item(0);
+        return $this->query('.//fromVersion', $node)->item(0);
     }
 
     public function getPackage($node): string
     {
-        return $this->query('//package', $node)->item(0)->nodeValue;
+        return $this->query('.//package', $node)->item(0)->nodeValue;
     }
 
     public function getVersion($node): string
     {
-        return $this->query('//version', $node)->item(0)->nodeValue;
+        return $this->query('.//version', $node)->item(0)->nodeValue;
     }
 
     public function getPath($node): string
     {
-        return $this->query('//path', $node)->item(0)->nodeValue;
+        return $this->query('.//path', $node)->item(0)->nodeValue;
     }
 
     public function getAfter($node): \DOMNodeList
     {
-        return $this->query('//after/command');
+        return $this->query('.//after/command', $node);
     }
 
     public function getBefore($node): \DOMNodeList
     {
-        return $this->query('//before/command');
+        return $this->query('.//before/command', $node);
+    }
+
+    public function getArguments($node): array
+    {
+        $argumentNodes = $this->query('.//arguments/argument', $node);
+        $arguments = [];
+        foreach ($argumentNodes as $argumentNode) {
+            $arguments[$argumentNode->getAttribute('key')] = [
+                'name' => $argumentNode->getAttribute('name'),
+                'value' => $argumentNode->nodeValue
+            ];
+        }
+        return $arguments;
     }
 }

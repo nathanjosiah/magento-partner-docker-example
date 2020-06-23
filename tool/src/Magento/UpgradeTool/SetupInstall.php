@@ -59,7 +59,7 @@ class SetupInstall extends AbstractCommand
 
         // TODO: Hardcoded version number
         $this->log('Installing Magento 2.3.5 package.');
-        mkdir('/magento/.composer');
+        @mkdir('/magento/.composer');
 
         file_put_contents('/magento/.composer/auth.json',
             <<<COMPOSER
@@ -146,54 +146,60 @@ COMPOSER
     private function beforeCreate($node): void
     {
         $commands = $this->dom->getBefore($node);
-        $this->log((string)$commands->length);
+        $this->log('Before command flow.');
+        $this->commandFlow($commands);
     }
 
     private function afterCreate($node): void
     {
         $commands = $this->dom->getAfter($node);
-        $this->log((string)$commands->length);
+        $this->log('After command flow');
+        $this->commandFlow($commands);
     }
 
-    /**
-     * Loads setting for
-     */
-/*
-    private function loadConfig(): void
+    private function commandFlow($commands): void
     {
-        $dom = new Dom();
-        $dom->read(file_get_contents($this->input->getOption('config')));
-        // TODO: relative nodes
-        //$node = $dom->query('.//*[@name="' . $this->input->getOption('name') . '"]/fromVersion/after/execute[@tool="bin/magento"]/arguments');
-
-        foreach ($node->item(0)->childNodes as $item) {
-            if ($item->nodeType != XML_TEXT_NODE) {
-                $this->config[$item->nodeName] = $item->nodeValue;
+        foreach($commands as $command) {
+            $container = $command->getAttribute('container');
+            $path = $command->getAttribute('path');
+            $name = $command->getAttribute('name');
+            $this->log("Executing command $name (container: $container).");
+            switch($path) {
+                case 'bin/magento':
+                    $arguments = $this->dom->getArguments($command);
+                    $commandParameter = $this->getBinMagentoCommand($arguments);
+                    $parameters = $this->buildBinMagentoParameters($arguments);
+                    $execute = "php /magento/magento-ce/bin/magento $commandParameter $parameters";
+                    $this->log($execute);
+                    // $this->runPhp($execute);
+                    break;
+                default:
+                    throw new \RuntimeException("Unknown command path: $path");
+                    break;
             }
         }
-
     }
-*/
-    /**
-     * Provides arguments for bin/magento setup:install command
-     * @return string
-     */
-    /*
-    private function getArguments(): string
+
+    private function getBinMagentoCommand(&$arguments): ?string
     {
-        if (empty($this->config)) {
-            $this->loadConfig();
+        if ($arguments['command']) {
+            $command = $arguments['command']['value'];
+            unset($arguments['command']);
+            return $command;
         }
-        $arguments = [];
-        foreach($this->config as $parameter => $value) {
-            if (!$value) {
-                $arguments[] = "--$parameter";
+        return null;
+    }
+
+    private function buildBinMagentoParameters($arguments): string
+    {
+        $parameters = [];
+        foreach($arguments as $argument) {
+            if ($argument['value']) {
+                $parameters[] = "--{$argument['name']}={$argument['value']}";
             } else {
-                $arguments[] = "--$parameter=$value";
+                $parameters[] = "--{$argument['name']}";
             }
         }
-        return implode(' ', $arguments);
+        return implode(' ', $parameters);
     }
-*/
 }
-
