@@ -51,17 +51,12 @@ docker run --rm -d \
   -e MYSQL_DATABASE=main \
   db
 
-#info 'Starting ElasticSearch 6'
-#docker run --rm -d \
-#  --name elasticsearch6 \
-#  -e "discovery.type=single-node"\
-#  elasticsearch:6.8.4
-#
-#info 'Starting ElasticSearch 7'
-#docker run --rm -d \
-#  --name elasticsearch7 \
-#  -e "discovery.type=single-node"\
-#  elasticsearch:7.1.1
+info 'Starting ElasticSearch 7'
+docker run --rm -d \
+ --name elasticsearch7 \
+ --network cicd \
+ -e "discovery.type=single-node" \
+magento/magento-cloud-docker-elasticsearch:7.6-1.2
 
 info 'Pulling test php value from config.'
 PHP_VERSION=$(docker run --rm \
