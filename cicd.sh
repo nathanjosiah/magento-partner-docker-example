@@ -102,7 +102,7 @@ docker run --rm \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v mage:/magento \
   tool \
-  setup:install --config /app/etc/config.xml --php $PHP_VERSION
+  setup:install --config /app/etc/config.xml --name BasicUpgradeTest --php $PHP_VERSION
 
 info 'Running Tool - Verify Setup for' $PHP_VERSION
 docker run --rm \

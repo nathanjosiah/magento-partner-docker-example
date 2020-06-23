@@ -8,21 +8,32 @@ declare(strict_types=1);
 
 namespace Magento\UpgradeTool;
 
+use http\Exception\RuntimeException;
 use Magento\UpgradeTool\Config\Dom;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputOption;
 
 class SetupInstall extends AbstractCommand
 {
     protected static $defaultName = 'setup:install';
 
-    private $config = [];
+    // private $config = [];
+    private $test;
+    private $dom;
 
     private $input;
 
     protected function configure()
     {
         $this->setDescription('Install magento');
+
+        $this->addOption(
+            'name',
+            null,
+            InputOption::VALUE_REQUIRED,
+            'The name of the test'
+        );
 
         parent::configure();
     }
@@ -33,6 +44,13 @@ class SetupInstall extends AbstractCommand
         $this->input = $input;
         $composerUsername = getenv('COMPOSER_USERNAME');
         $composerPassword = getenv('COMPOSER_PASSWORD');
+
+        $this->dom = new Dom();
+        $this->dom->read(file_get_contents($input->getOption('config')));
+        $this->test = $this->dom->getTest($input->getOption('name'));
+        $fromVersion = $this->dom->getFromVersion($this->test);
+
+        $this->composerCreate($fromVersion);
 
         if (file_exists('/magento/magento-ce/vendor')) {
             $this->log('Magento is already installed');
@@ -64,8 +82,8 @@ COMPOSER
 
         $this->log('Installing Magento');
 
-        $parameters = $this->getParameters();
-        $this->runPhp("php /magento/magento-ce/bin/magento setup:install $parameters");
+        $arguments = $this->getArguments();
+        $this->runPhp("php /magento/magento-ce/bin/magento setup:install $arguments");
 
         $this->runPhp('php /magento/magento-ce/bin/magento de:mo:se production');
 
@@ -78,51 +96,104 @@ COMPOSER
         return 0;
     }
 
-    /*
-     * TODO: This stuff should probably end up in a separate object that is either injected or passed to this one
+    private function createAuth(): void
+    {
+        $composerUsername = getenv('COMPOSER_USERNAME');
+        $composerPassword = getenv('COMPOSER_PASSWORD');
+
+        mkdir('/magento/.composer');
+
+        file_put_contents('/magento/.composer/auth.json',
+            <<<COMPOSER
+{
+  "http-basic": {
+  "repo.magento.com": {
+      "username": "${composerUsername}",
+          "password": "${composerPassword}"
+      }
+  }
+}
+COMPOSER
+        );
+    }
+
+    private function composerCreate($node): void
+    {
+        $this->beforeCreate($node);
+        switch($node->getAttribute('type')) {
+            case 'composer':
+                $path = $this->dom->getPath($node);
+                if (file_exists("$path/vendor")) {
+                    $this->log('Magento is already installed');
+                    // return;
+                }
+                $package = $this->dom->getPackage($node);
+                $version = $this->dom->getVersion($node);
+                $this->log("Installing Magento $version package ($package).");
+                $this->log('Creating composer auth.json file,');
+                $this->createAuth();
+                $command = "composer create-project --repository-url=https://repo.magento.com/ $package:$version $path";
+                // $this->runPhp($command);
+                $this->log($command);
+                break;
+            default:
+                throw new \RuntimeException('Unknown source type: ' . $node->getAttribute('type'));
+                break;
+        }
+        $this->afterCreate($node);
+    }
+
+    private function beforeCreate($node): void
+    {
+        $commands = $this->dom->getBefore($node);
+        $this->log((string)$commands->length);
+    }
+
+    private function afterCreate($node): void
+    {
+        $commands = $this->dom->getAfter($node);
+        $this->log((string)$commands->length);
+    }
+
+    /**
+     * Loads setting for
      */
+/*
     private function loadConfig(): void
     {
         $dom = new Dom();
-        $document = $dom->read(file_get_contents($this->input->getOption('config')));
-        // TODO: use xpath queries instead
-        $nodes = $document->getElementsByTagName('install')->item(0)->childNodes;
-        foreach ($nodes as $item) {
+        $dom->read(file_get_contents($this->input->getOption('config')));
+        // TODO: relative nodes
+        //$node = $dom->query('.//*[@name="' . $this->input->getOption('name') . '"]/fromVersion/after/execute[@tool="bin/magento"]/arguments');
+
+        foreach ($node->item(0)->childNodes as $item) {
             if ($item->nodeType != XML_TEXT_NODE) {
                 $this->config[$item->nodeName] = $item->nodeValue;
             }
         }
-        /*
-         * TODO: deal with validation
-         * I'm going to leave it here for now as an example. Maybe make validation a separate CLI command?
-         * Either way we can skip validation for initial phases.
-        if ($document->schemaValidate('config.xsd')) {
-            echo "Validation OK\n";
-        } else {
-            echo "Validation failed\n";
-            exit(1);
-        }
-        */
-    }
 
+    }
+*/
     /**
-     * Provides parameter string for bin/magento setup:install command
+     * Provides arguments for bin/magento setup:install command
      * @return string
      */
-    private function getParameters(): string
+    /*
+    private function getArguments(): string
     {
         if (empty($this->config)) {
             $this->loadConfig();
         }
-        $parameters = [];
+        $arguments = [];
         foreach($this->config as $parameter => $value) {
             if (!$value) {
-                $parameters[] = "--$parameter";
+                $arguments[] = "--$parameter";
             } else {
-                $parameters[] = "--$parameter=$value";
+                $arguments[] = "--$parameter=$value";
             }
         }
-        return implode(' ', $parameters);
+        return implode(' ', $arguments);
     }
+*/
 }
 
