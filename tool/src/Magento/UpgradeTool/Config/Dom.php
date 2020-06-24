@@ -16,28 +16,36 @@ class Dom
     private $dom;
     private $xpath;
 
-    public function read(string $xml)
+    /**
+     * Read configuration file
+     * @param string $xml
+     * @return \DOMDocument
+     */
+    public function read(string $xml): \DOMDocument
     {
-        $dom = new \DOMDocument();
-        $useErrors = libxml_use_internal_errors(true);
-        $res = $dom->loadXML($xml);
-        if (!$res) {
+        if (!$this->dom) {
+            $dom = new \DOMDocument();
+            $useErrors = libxml_use_internal_errors(true);
+            $res = $dom->loadXML($xml);
+            if (!$res) {
+                libxml_use_internal_errors($useErrors);
+                throw new \RuntimeException('Couldn\'t parse.');
+            }
             libxml_use_internal_errors($useErrors);
-            throw new \RuntimeException('Couldn\'t parse.');
+            $this->dom = $dom;
+            $this->xpath = new \DOMXPath($dom);
         }
-        libxml_use_internal_errors($useErrors);
 
-        $this->dom = $dom;
-        $this->xpath = new \DOMXPath($dom);
-        return $dom;
-    }
-
-    public function getDom()
-    {
         return $this->dom;
     }
 
-    public function query($expression, $node = null): \DOMNodeList
+    /**
+     * Xpath query
+     * @param $expression
+     * @param null $node
+     * @return \DOMNodeList
+     */
+    public function query(string $expression, $node = null): \DOMNodeList
     {
         if ($node) {
             return $this->xpath->query($expression, $node);
@@ -46,42 +54,42 @@ class Dom
         }
     }
 
-    public function getTest($testName): \DOMNode
+    public function getTest(string $testName): \DOMNode
     {
         return $this->query("//config/tests/test[@name='$testName']")->item(0);
     }
 
-    public function getFromVersion($node): \DOMNode
+    public function getFromVersion(\DOMNode $node): \DOMNode
     {
         return $this->query('.//fromVersion', $node)->item(0);
     }
 
-    public function getPackage($node): string
+    public function getPackage(\DOMNode $node): string
     {
         return $this->query('.//package', $node)->item(0)->nodeValue;
     }
 
-    public function getVersion($node): string
+    public function getVersion(\DOMNode $node): string
     {
         return $this->query('.//version', $node)->item(0)->nodeValue;
     }
 
-    public function getPath($node): string
+    public function getPath(\DOMNode $node): string
     {
         return $this->query('.//path', $node)->item(0)->nodeValue;
     }
 
-    public function getAfter($node): \DOMNodeList
+    public function getAfter(\DOMNode $node): \DOMNodeList
     {
         return $this->query('.//after/command', $node);
     }
 
-    public function getBefore($node): \DOMNodeList
+    public function getBefore(\DOMNode $node): \DOMNodeList
     {
         return $this->query('.//before/command', $node);
     }
 
-    public function getArguments($node): array
+    public function getArguments(\DOMNode $node): array
     {
         $argumentNodes = $this->query('.//arguments/argument', $node);
         $arguments = [];

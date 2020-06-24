@@ -52,11 +52,27 @@
                             <argument key="mode">production</argument>
                         </arguments>
                     </command>
+                    <command container="php" name="magento_account_sharing" path="bin/magento">
+                        <arguments>
+                            <argument key="command">config:set</argument>
+                            <argument key="path" name="admin/security/admin_account_sharing">1</argument>
+                        </arguments>
+                    </command>
                     <command container="php" name="disable_secret_key" path="bin/magento">
                         <arguments>
                             <argument key="command">config:set</argument>
-                            <argument key="path">admin/security/use_form_key</argument>
-                            <argument key="value">0</argument>
+                            <argument key="path" name="admin/security/use_form_key">0</argument>
+                        </arguments>
+                    </command>
+                    <command container="php" name="mftf_reset" path="vendor/bin/mftf">
+                        <arguments>
+                            <argument key="command">reset</argument>
+                            <argument key="hard">--hard</argument>
+                        </arguments>
+                    </command>
+                    <command container="php" name="mftf_build" path="vendor/bin/mftf">
+                        <arguments>
+                            <argument key="command">build:project</argument>
                         </arguments>
                     </command>
                 </after>

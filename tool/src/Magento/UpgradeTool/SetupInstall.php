@@ -8,7 +8,6 @@ declare(strict_types=1);
 
 namespace Magento\UpgradeTool;
 
-use http\Exception\RuntimeException;
 use Magento\UpgradeTool\Config\Dom;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -20,12 +19,24 @@ class SetupInstall extends AbstractCommand
 
     const GLUE = ' ';
 
-    // private $config = [];
     private $test;
     private $dom;
 
     private $input;
 
+    /**
+     * SetupInstall constructor.
+     * @param Dom $dom
+     */
+    public function __construct(Dom $dom)
+    {
+        parent::__construct();
+        $this->dom = $dom;
+    }
+
+    /**
+     * Command configuration
+     */
     protected function configure()
     {
         $this->setDescription('Install magento');
@@ -40,64 +51,30 @@ class SetupInstall extends AbstractCommand
         parent::configure();
     }
 
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return int|void
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         parent::execute($input, $output);
         $this->input = $input;
-        $composerUsername = getenv('COMPOSER_USERNAME');
-        $composerPassword = getenv('COMPOSER_PASSWORD');
 
-        $this->dom = new Dom();
+        // Load configuration
         $this->dom->read(file_get_contents($input->getOption('config')));
         $this->test = $this->dom->getTest($input->getOption('name'));
         $fromVersion = $this->dom->getFromVersion($this->test);
 
+        // Install Magento
         $this->composerCreate($fromVersion);
-
-        if (file_exists('/magento/magento-ce/vendor')) {
-            $this->log('Magento is already installed');
-            return 0;
-        }
-
-        // TODO: Hardcoded version number
-        $this->log('Installing Magento 2.3.5 package.');
-        @mkdir('/magento/.composer');
-
-        file_put_contents('/magento/.composer/auth.json',
-            <<<COMPOSER
-{
-  "http-basic": {
-  "repo.magento.com": {
-      "username": "${composerUsername}",
-          "password": "${composerPassword}"
-      }
-  }
-}
-COMPOSER
-        );
-        // TODO: Use configuration options
-        $this->runPhp('composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition:2.3.5 /magento/magento-ce');
-
-        // TODO: We need to deal with this sooner rather than later
-        $this->log('Running highly unsafe permission change to 777 for everything for now.');
-        `chmod -R 777 /magento/magento-ce`;
-
-        $this->log('Installing Magento');
-
-        $arguments = $this->getArguments();
-        $this->runPhp("php /magento/magento-ce/bin/magento setup:install $arguments");
-
-        $this->runPhp('php /magento/magento-ce/bin/magento de:mo:se production');
-
-        $this->log('Configuring magento for mftf');
-        $this->runPhp('php /magento/magento-ce/vendor/bin/mftf reset --hard');
-        $this->runPhp('php /magento/magento-ce/vendor/bin/mftf build:project');
-        $this->runPhp('php /magento/magento-ce/bin/magento config:set admin/security/admin_account_sharing 1');
-        $this->runPhp('php /magento/magento-ce/bin/magento config:set admin/security/use_form_key 0');
 
         return 0;
     }
 
+    /**
+     * Create auth.json for composer
+     */
     private function createAuth(): void
     {
         $composerUsername = getenv('COMPOSER_USERNAME');
@@ -119,7 +96,11 @@ COMPOSER
         );
     }
 
-    private function composerCreate($node): void
+    /**
+     * Run composer create-project and related commands
+     * @param \DOMNode $node
+     */
+    private function composerCreate(\DOMNode $node): void
     {
         $this->beforeCreate($node);
         switch($node->getAttribute('type')) {
@@ -127,7 +108,7 @@ COMPOSER
                 $path = $this->dom->getPath($node);
                 if (file_exists("$path/vendor")) {
                     $this->log('Magento is already installed');
-                    // return;
+                    return;
                 }
                 $package = $this->dom->getPackage($node);
                 $version = $this->dom->getVersion($node);
@@ -135,8 +116,10 @@ COMPOSER
                 $this->log('Creating composer auth.json file,');
                 $this->createAuth();
                 $command = "composer create-project --repository-url=https://repo.magento.com/ $package:$version $path";
-                // $this->runPhp($command);
+                $this->runPhp($command);
                 $this->log($command);
+                $this->log('Running highly unsafe permission change to 777 for everything for now.');
+                `chmod -R 777 /magento/magento-ce`;
                 break;
             default:
                 throw new \RuntimeException('Unknown source type: ' . $node->getAttribute('type'));
@@ -145,21 +128,33 @@ COMPOSER
         $this->afterCreate($node);
     }
 
-    private function beforeCreate($node): void
+    /**
+     * Commands to run before composer create-projects
+     * @param \DOMNode $node
+     */
+    private function beforeCreate(\DOMNode $node): void
     {
         $commands = $this->dom->getBefore($node);
         $this->log('Before command flow.');
         $this->commandFlow($commands);
     }
 
-    private function afterCreate($node): void
+    /**
+     * Commands to run after composer create-projects
+     * @param \DOMNode $node
+     */
+    private function afterCreate(\DOMNode $node): void
     {
         $commands = $this->dom->getAfter($node);
         $this->log('After command flow');
         $this->commandFlow($commands);
     }
 
-    private function commandFlow($commands): void
+    /**
+     * Command to run
+     * @param \DOMNodeList $commands
+     */
+    private function commandFlow(\DOMNodeList $commands): void
     {
         foreach($commands as $command) {
             $container = $command->getAttribute('container');
@@ -170,11 +165,16 @@ COMPOSER
             $parameters = $this->buildParameters($arguments);
             $execute = "php /magento/magento-ce/$path $parameters";
             $this->log($execute);
-            // $this->runPhp($execute);
+            $this->runPhp($execute);
         }
     }
 
-    private function buildParameters($arguments): string
+    /**
+     * Build a parameter list from command arguments
+     * @param array $arguments
+     * @return string
+     */
+    private function buildParameters(array $arguments): string
     {
         $parameters = [];
         foreach($arguments as $argument) {
