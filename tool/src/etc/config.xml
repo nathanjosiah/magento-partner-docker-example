@@ -25,22 +25,21 @@
                     <command container="php" path="bin/magento" name="install">
                         <arguments>
                             <argument key="command">setup:install</argument>
-                            <argument key="admin_firstname" name="admin-firstname">Tanel</argument>
-                            <argument key="admin_lastname" name="admin-lastname">Raja</argument>
-                            <argument key="admin_email" name="admin-email">tanel.raja@vaimo.com</argument>
-                            <argument key="admin_user" name="admin-user">admin</argument>
-                            <argument key="admin_password" name="admin-password">admin123</argument>
-                            <argument key="base_url" name="base-url">http://magento/</argument>
-                            <argument key="db_host" name="db-host">db</argument>
-                            <argument key="db_name" name="db-name">main</argument>
-                            <argument key="db_user" name="db-user">root</argument>
-                            <argument key="currency" name="currency">USD</argument>
-                            <argument key="timezone" name="timezone">America/Chicago</argument>
-                            <argument key="language" name="language">en_US</argument>
-                            <argument key="use_rewrites" name="use-rewrites">1</argument>
+                            <argument key="admin_firstname" name="--admin-firstname">Tanel</argument>
+                            <argument key="admin_lastname" name="--admin-lastname">Raja</argument>
+                            <argument key="admin_email" name="--admin-email">tanel.raja@vaimo.com</argument>
+                            <argument key="admin_user" name="--admin-user">admin</argument>
+                            <argument key="admin_password" name="--admin-password">admin123</argument>
+                            <argument key="base_url" name="--base-url">http://magento/</argument>
+                            <argument key="db_host" name="--db-host">db</argument>
+                            <argument key="db_name" name="--db-name">main</argument>
+                            <argument key="db_user" name="--db-user">root</argument>
+                            <argument key="currency" name="--currency">USD</argument>
+                            <argument key="timezone" name="--timezone">America/Chicago</argument>
+                            <argument key="language" name="--language">en_US</argument>
+                            <argument key="use_rewrites" name="--use-rewrites">1</argument>
                         </arguments>
                     </command>
-                    <!--
                     <command container="php" name="set_indexer_mode" path="bin/magento">
                         <arguments>
                             <argument key="command">indexer:set-mode</argument>
@@ -60,7 +59,6 @@
                             <argument key="value">0</argument>
                         </arguments>
                     </command>
-                    -->
                 </after>
             </fromVersion>
             <services>

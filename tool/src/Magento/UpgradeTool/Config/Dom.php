@@ -88,7 +88,8 @@ class Dom
         foreach ($argumentNodes as $argumentNode) {
             $arguments[$argumentNode->getAttribute('key')] = [
                 'name' => $argumentNode->getAttribute('name'),
-                'value' => $argumentNode->nodeValue
+                'value' => $argumentNode->nodeValue,
+                'glue' => $argumentNode->getAttribute('glue')
             ];
         }
         return $arguments;

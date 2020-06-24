@@ -18,6 +18,8 @@ class SetupInstall extends AbstractCommand
 {
     protected static $defaultName = 'setup:install';
 
+    const GLUE = ' ';
+
     // private $config = [];
     private $test;
     private $dom;
@@ -164,40 +166,26 @@ COMPOSER
             $path = $command->getAttribute('path');
             $name = $command->getAttribute('name');
             $this->log("Executing command $name (container: $container).");
-            switch($path) {
-                case 'bin/magento':
-                    $arguments = $this->dom->getArguments($command);
-                    $commandParameter = $this->getBinMagentoCommand($arguments);
-                    $parameters = $this->buildBinMagentoParameters($arguments);
-                    $execute = "php /magento/magento-ce/bin/magento $commandParameter $parameters";
-                    $this->log($execute);
-                    // $this->runPhp($execute);
-                    break;
-                default:
-                    throw new \RuntimeException("Unknown command path: $path");
-                    break;
-            }
+            $arguments = $this->dom->getArguments($command);
+            $parameters = $this->buildParameters($arguments);
+            $execute = "php /magento/magento-ce/$path $parameters";
+            $this->log($execute);
+            // $this->runPhp($execute);
         }
     }
 
-    private function getBinMagentoCommand(&$arguments): ?string
-    {
-        if ($arguments['command']) {
-            $command = $arguments['command']['value'];
-            unset($arguments['command']);
-            return $command;
-        }
-        return null;
-    }
-
-    private function buildBinMagentoParameters($arguments): string
+    private function buildParameters($arguments): string
     {
         $parameters = [];
         foreach($arguments as $argument) {
-            if ($argument['value']) {
-                $parameters[] = "--{$argument['name']}={$argument['value']}";
+            $glue = self::GLUE;
+            if ($argument['glue']) {
+                $glue = $argument['glue'];
+            }
+            if ($argument['name']) {
+                $parameters[] = "{$argument['name']}$glue{$argument['value']}";
             } else {
-                $parameters[] = "--{$argument['name']}";
+                $parameters[] = $argument['value'];
             }
         }
         return implode(' ', $parameters);
