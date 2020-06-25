@@ -9,6 +9,8 @@ declare(strict_types=1);
 namespace Magento\UpgradeTool;
 
 use Magento\UpgradeTool\Config\Dom;
+use Magento\UpgradeTool\Config\CommandFlow;
+use Magento\UpgradeTool\ObjectManager;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -62,6 +64,7 @@ class SetupInstall extends AbstractCommand
         $this->input = $input;
 
         // Load configuration
+        // We probably need to move config reading much earlier
         $this->dom->read(file_get_contents($input->getOption('config')));
         $this->test = $this->dom->getTest($input->getOption('name'));
         $fromVersion = $this->dom->getFromVersion($this->test);
@@ -102,7 +105,10 @@ COMPOSER
      */
     private function composerCreate(\DOMNode $node): void
     {
-        $this->beforeCreate($node);
+        $flow = new CommandFlow($this->dom, $node);
+        // Before commands
+        $this->log('Before command flow');
+        $this->commandFlow($flow->getBefore());
         switch($node->getAttribute('type')) {
             case 'composer':
                 $path = $this->dom->getPath($node);
@@ -118,6 +124,7 @@ COMPOSER
                 $command = "composer create-project --repository-url=https://repo.magento.com/ $package:$version $path";
                 $this->runPhp($command);
                 $this->log($command);
+                // This probably belongs to after flow instead of being hardcoded
                 $this->log('Running highly unsafe permission change to 777 for everything for now.');
                 `chmod -R 777 /magento/magento-ce`;
                 break;
@@ -125,69 +132,21 @@ COMPOSER
                 throw new \RuntimeException('Unknown source type: ' . $node->getAttribute('type'));
                 break;
         }
-        $this->afterCreate($node);
-    }
-
-    /**
-     * Commands to run before composer create-projects
-     * @param \DOMNode $node
-     */
-    private function beforeCreate(\DOMNode $node): void
-    {
-        $commands = $this->dom->getBefore($node);
-        $this->log('Before command flow.');
-        $this->commandFlow($commands);
-    }
-
-    /**
-     * Commands to run after composer create-projects
-     * @param \DOMNode $node
-     */
-    private function afterCreate(\DOMNode $node): void
-    {
-        $commands = $this->dom->getAfter($node);
         $this->log('After command flow');
-        $this->commandFlow($commands);
+        $this->commandFlow($flow->getAfter());
     }
 
     /**
      * Command to run
      * @param \DOMNodeList $commands
      */
-    private function commandFlow(\DOMNodeList $commands): void
+    private function commandFlow(array $commands): void
     {
         foreach($commands as $command) {
-            $container = $command->getAttribute('container');
-            $path = $command->getAttribute('path');
-            $name = $command->getAttribute('name');
-            $this->log("Executing command $name (container: $container).");
-            $arguments = $this->dom->getArguments($command);
-            $parameters = $this->buildParameters($arguments);
-            $execute = "php /magento/magento-ce/$path $parameters";
+            $this->log("Executing command {$command->getName()} (container: {$command->getContainer()}).");
+            $execute = $command->buildCommand();
             $this->log($execute);
             $this->runPhp($execute);
         }
-    }
-
-    /**
-     * Build a parameter list from command arguments
-     * @param array $arguments
-     * @return string
-     */
-    private function buildParameters(array $arguments): string
-    {
-        $parameters = [];
-        foreach($arguments as $argument) {
-            $glue = self::GLUE;
-            if ($argument['glue']) {
-                $glue = $argument['glue'];
-            }
-            if ($argument['name']) {
-                $parameters[] = "{$argument['name']}$glue{$argument['value']}";
-            } else {
-                $parameters[] = $argument['value'];
-            }
-        }
-        return implode(' ', $parameters);
     }
 }
