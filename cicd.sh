@@ -4,8 +4,14 @@ info () {
   echo -e "\033[0;34m" $* "\033[0m"
 }
 
-DIND_CONTAINER=$(docker run -d --privileged -p 12375:2375 -p 8877:80 -e DOCKER_TLS_CERTDIR="" docker:dind)
+DIND_CONTAINER=$(docker run -d --privileged -p 12375:2375 -p 4444:4444 -p 5900:5900 -e DOCKER_TLS_CERTDIR="" docker:dind)
 export DOCKER_HOST=tcp://localhost:12375
+
+info 'Creating volume'
+docker volume create --name mage
+
+info 'Initializing network'
+docker network create --driver bridge cicd
 
 info 'Building Tool'
 docker build -t tool ./tool
@@ -41,7 +47,6 @@ docker run --rm --name tool tool self:run-tests
 
 info 'Running BasicUpgradeTest'
 docker run --rm \
-  -t \
  --name tool \
  --network cicd \
  --env-file .env \

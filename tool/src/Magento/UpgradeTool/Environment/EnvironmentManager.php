@@ -44,11 +44,6 @@ class EnvironmentManager
         $this->shellExecutor->exec('docker pull magento/magento-cloud-docker-php:7.4-cli-1.2');
         $this->shellExecutor->exec('docker pull magento/magento-cloud-docker-php:7.4-fpm-1.2');
 
-        $this->logger->info('Creating volume');
-        $this->shellExecutor->exec('docker volume create --name mage');
-        $this->logger->info('Creating network');
-        $this->shellExecutor->exec('docker network create --driver bridge cicd');
-
         $this->logger->info('Starting PHP-FPM 7.3');
         $this->shellExecutor->exec('
             docker run --rm -d \
@@ -105,12 +100,17 @@ class EnvironmentManager
             -e FPM_HOST=fpm-74\
             -v mage:/magento magento
         ');
-        $this->logger->info('Starting Selenium');
+    }
 
+    public function startSelenium(string $phpVersion): void
+    {
+        $this->shellExecutor->exec('docker stop selenium');
         $this->shellExecutor->exec('
             docker run --rm -d \
+            -p 4444:4444 -p 5900:5900 \
             --name selenium \
             --network cicd \
+            --link magento-php' . str_replace('.','', $phpVersion) . ':magento \
             -v /dev/shm:/dev/shm \
             selenium/standalone-chrome-debug:3.141.59-gold
         ');

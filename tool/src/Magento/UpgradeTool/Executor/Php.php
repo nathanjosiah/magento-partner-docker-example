@@ -47,8 +47,6 @@ class Php
             magento/magento-cloud-docker-php:' . $phpVersion .'-cli-1.2 \
             ' . $command;
 
-        $this->logger->debug($full);
-
         return $this->shellExecutor->exec($full, true);
     }
 }

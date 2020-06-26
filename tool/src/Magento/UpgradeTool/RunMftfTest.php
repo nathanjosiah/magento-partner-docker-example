@@ -8,6 +8,9 @@ declare(strict_types=1);
 
 namespace Magento\UpgradeTool;
 
+use Magento\UpgradeTool\Environment\EnvironmentManager;
+use Magento\UpgradeTool\Executor\Php;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,6 +19,21 @@ use Symfony\Component\Console\Output\OutputInterface;
 class RunMftfTest extends AbstractCommand
 {
     protected static $defaultName = 'verify:mftf';
+    /**
+     * @var EnvironmentManager
+     */
+    private $environmentManager;
+
+    public function __construct(
+        Php $phpExecutor,
+        LoggerInterface $logger,
+        EnvironmentManager $environmentManager,
+        string $name = null
+    ) {
+        parent::__construct($phpExecutor, $logger, $name);
+        $this->environmentManager = $environmentManager;
+    }
+
 
     protected function configure()
     {
@@ -50,8 +68,11 @@ ENV
         );
         $this->runPhp('php /magento/magento-ce/vendor/bin/mftf build:project');
 
+        $this->environmentManager->startSelenium($phpVersion);
+
         $this->log('Running MFTF test ' . $testName . ' using PHP ' . $phpVersion);
         $this->runPhp('php /magento/magento-ce/vendor/bin/mftf run:test ' . $testName);
+
 
         return 0;
     }
