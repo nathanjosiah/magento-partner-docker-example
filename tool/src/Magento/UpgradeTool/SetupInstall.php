@@ -25,10 +25,10 @@ class SetupInstall extends AbstractCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         parent::execute($input, $output);
-        $composerUsername = getenv('COMPOSER_USERNAME');
-        $composerPassword = getenv('COMPOSER_PASSWORD');
-        $userPassword = getenv('ADMIN_PASSWORD');
-        $adminEmail = getenv('ADMIN_EMAIL');
+        $composerUsername = getenv('MAGE_COMPOSER_USERNAME');
+        $composerPassword = getenv('MAGE_COMPOSER_PASSWORD');
+        $userPassword = getenv('MAGE_ADMIN_PASSWORD');
+        $adminEmail = getenv('MAGE_ADMIN_EMAIL');
 
         if (file_exists('/magento/magento-ce/vendor')) {
             $this->log('Magento is already installed');
@@ -52,9 +52,11 @@ COMPOSER
         );
         $this->runPhp('composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition:2.3.5 /magento/magento-ce');
 
-        $this->log('Running highly unsafe permision change to 777 for everything for now.');
+        $this->log('Running highly unsafe permission change to 777 for everything for now.');
         `chmod -R 777 /magento/magento-ce`;
-        $this->log('Installing Magento');
+
+        // TODO These need to be moved to the config and processed dynamically as described
+        $this->log('Initializing Magento');
 
         $this->runPhp('php /magento/magento-ce/bin/magento setup:install \
         --admin-firstname=Nathan \
@@ -77,8 +79,6 @@ COMPOSER
         $this->runPhp('php /magento/magento-ce/bin/magento de:mo:se production');
 
         $this->log('Configuring magento for mftf');
-        $this->runPhp('php /magento/magento-ce/vendor/bin/mftf reset --hard');
-        $this->runPhp('php /magento/magento-ce/vendor/bin/mftf build:project');
         $this->runPhp('php /magento/magento-ce/bin/magento config:set admin/security/admin_account_sharing 1');
         $this->runPhp('php /magento/magento-ce/bin/magento config:set admin/security/use_form_key 0');
 

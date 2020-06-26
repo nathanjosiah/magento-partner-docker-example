@@ -14,19 +14,38 @@
             <fromVersion type="composer">
                 <package>2.3.5</package>
                 <edition>ce</edition>
+                <services>
+                    <service name="php">
+                        <arguments>
+                            <argument name="version">7.3</argument>
+                        </arguments>
+                    </service>
+                    <service name="elasticsearch">
+                        <arguments>
+                            <argument name="version">7.6-1.2</argument>
+                        </arguments>
+                    </service>
+                </services>
+                <before>
+                    <command type="php">
+                        <version>7.3</version>
+                        <arguments>
+                            <argument>etc</argument>
+                        </arguments>
+                    </command>
+                </before>
             </fromVersion>
-            <services>
-                <service name="php">
-                    <arguments>
-                        <argument name="version">7.3</argument>
-                    </arguments>
-                </service>
-                <service name="elasticsearch">
-                    <arguments>
-                        <argument name="version">7.6-1.2</argument>
-                    </arguments>
-                </service>
-            </services>
+            <toVersion type="git">
+                <repo>git@github.com:magento-borg/magento2ce</repo>
+                <branch>MC-12345</branch>
+                <services>
+                    <service name="php">
+                        <arguments>
+                            <argument name="version">7.4</argument>
+                        </arguments>
+                    </service>
+                </services>
+            </toVersion>
         </test>
     </tests>
 </config>

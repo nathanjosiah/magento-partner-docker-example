@@ -4,126 +4,41 @@ info () {
   echo -e "\033[0;34m" $* "\033[0m"
 }
 
-DIND_CONTAINER=$(docker run -d --privileged -p 12375:2375 -p 8877:80 -e DOCKER_TLS_CERTDIR="" docker:dind)
+if [[ ! -f .env ]]; then
+  info "Didn't find an .env file. Assuming environment variables from host environment"
+  env | grep MAGE_ > .env
+fi
+
+DIND_CONTAINER=$(docker run -d --privileged -p 12375:2375 -p 4444:4444 -p 5900:5900 -e DOCKER_TLS_CERTDIR="" docker:dind)
 export DOCKER_HOST=tcp://localhost:12375
+
+info 'Creating volume'
+docker volume create --name mage
+
+info 'Initializing network'
+docker network create --driver bridge cicd
 
 info 'Building Tool'
 docker build -t tool ./tool
-info 'Pulling PHP images'
-docker pull magento/magento-cloud-docker-php:7.3-cli-1.2
-docker pull magento/magento-cloud-docker-php:7.3-fpm-1.2
-docker pull magento/magento-cloud-docker-php:7.4-cli-1.2
-docker pull magento/magento-cloud-docker-php:7.4-fpm-1.2
-
 info 'Building Nginx'
 docker build -t magento ./nginx
 info 'Building Mariadb'
 docker build -t db ./db
 
-info 'Create volume'
-docker volume create --name mage
-
-info 'Create network'
-docker network create --driver bridge cicd
-
-info 'Starting PHP-FPM 7.3'
-docker run --rm -d \
-  --name fpm-73 \
-  --network cicd \
-  -v mage:/magento\
-  -w=/magento/magento-ce\
-  magento/magento-cloud-docker-php:7.3-fpm-1.2
-info 'Starting PHP-FPM 7.4'
-docker run --rm -d \
-  --name fpm-74 \
-  --network cicd \
-  -v mage:/magento\
-  -w=/magento/magento-ce\
-  magento/magento-cloud-docker-php:7.4-fpm-1.2
-
-info 'Starting MariaDB'
-docker run --rm -d \
-  -p 3306:3306 \
-  --name db \
-  --network cicd \
-  -e MYSQL_ROOT_PASSWORD=secretpw \
-  -e 'MYSQL_ROOT_HOST=%' \
-  -e MYSQL_DATABASE=main \
-  db
-
-info 'Starting ElasticSearch 7'
-docker run --rm -d \
- --name elasticsearch7 \
- --network cicd \
- -e "discovery.type=single-node" \
-magento/magento-cloud-docker-elasticsearch:7.6-1.2
-
-info 'Pulling test php value from config.'
-PHP_VERSION=$(docker run --rm \
+info 'Initializing environment'
+docker run --rm \
   --name tool \
   --network cicd \
   --env-file .env \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v mage:/magento \
   tool \
-  test:config:get-php-version --config /app/etc/config.xml --name BasicUpgradeTest)
-
-echo Got version $PHP_VERSION for BasicUpgradeTest
-
-info 'Starting Nginx'
-if [ $PHP_VERSION == 7.3 ]
-then
-docker run --rm -d \
-  --network cicd \
-  --name magento \
-  -e FPM_HOST=fpm-73\
-  -v mage:/magento magento
-else
-docker run --rm -d \
-  --network cicd \
-  --name magento \
-  -e FPM_HOST=fpm-74\
-  -v mage:/magento magento
-fi
+  env:build
 
 info 'Running Tool Unit Tests'
 docker run --rm --name tool tool self:run-tests
 
-info 'Running Tool - Setup Magento for ' $PHP_VERSION
-docker run --rm \
-  --name tool \
-  --network cicd \
-  --env-file .env \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v mage:/magento \
-  tool \
-  setup:install --php $PHP_VERSION
-
-info 'Running Tool - Verify Setup for' $PHP_VERSION
-docker run --rm \
-  --name tool \
-  --network cicd \
-  --env-file .env \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v mage:/magento \
-  tool \
-  setup:verify --php $PHP_VERSION
-
-#info 'Switching php to 7.4'
-#docker exec -it magento sed -i 's/fpm-73:/fpm-74:/' /etc/nginx/conf.d/default.conf
-#docker exec -it magento nginx -s reload
-#
-#info 'Running Tool - Verify Setup for 7.4'
-#docker run --rm \
-#  --name tool \
-#  --network cicd \
-#  --env-file .env \
-#  -v /var/run/docker.sock:/var/run/docker.sock \
-#  -v mage:/magento \
-#  tool \
-#  setup:verify --php 7.4
-#
-info 'Running Tool - Run MFTF Test for '$PHP_VERSION
+info 'Running BasicUpgradeTest'
 docker run --rm \
  --name tool \
  --network cicd \
@@ -131,4 +46,20 @@ docker run --rm \
  -v /var/run/docker.sock:/var/run/docker.sock \
  -v mage:/magento \
  tool \
- test:run --php $PHP_VERSION basic-workflow
+ test:run BasicUpgradeTest
+
+# For future use: Example of running another test in parrallel.
+# Each DinD container for this system represents a test environment.
+# The DinD containers can be all started together at the top and then specific tool test:run's can be run within each dind container in a separate process.
+# They will be fully isolated since the tests can interact with any combination of services and version at a given time
+#
+# DIND_CONTAINER=$(docker run -d --privileged -p 12376:2375 -e DOCKER_TLS_CERTDIR="" docker:dind)
+# export DOCKER_HOST=tcp://localhost:12376
+# docker run --rm \
+# --name tool \
+# --network cicd \
+# --env-file .env \
+# -v /var/run/docker.sock:/var/run/docker.sock \
+# -v mage:/magento \
+# tool \
+# test:run SomeOtherTest

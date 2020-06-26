@@ -21,8 +21,8 @@ class ObjectArrayResolver extends ValueInjection
     {
         $items = [];
         $objectManager = ObjectManager::getInstance();
-        foreach ($this->value as $object) {
-            $items[] = $objectManager->get($object);
+        foreach ($this->value as $key => $object) {
+            $items[$key] = $objectManager->get($object);
         }
 
         return $items;
