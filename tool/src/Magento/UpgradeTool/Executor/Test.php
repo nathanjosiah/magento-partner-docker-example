@@ -26,7 +26,7 @@ class Test
     /**
      * @var Step
      */
-    private $configCommandExecutor;
+    private $stepExecutor;
 
     public function __construct(
         Tool $toolExecutor,
@@ -35,7 +35,7 @@ class Test
     ) {
         $this->toolExecutor = $toolExecutor;
         $this->logger = $logger;
-        $this->configCommandExecutor = $configCommandExecutor;
+        $this->stepExecutor = $configCommandExecutor;
     }
 
     public function exec(string $testName): void
@@ -43,22 +43,22 @@ class Test
         $this->logger->info('Starting Test ' . $testName);
 
         //$this->logger->info('Executing pre-installation steps');
-        //$this->configCommandExecutor->executeBeforeFromVersion($testName);
+        //$this->stepExecutor->executeBeforeFromVersion($testName);
 
         $this->logger->info('Installing Magento');
-        $this->configCommandExecutor->executeFromVersion($testName);
+        $this->stepExecutor->executeFromVersion($testName);
 
         $this->logger->info('Post-installation steps');
-        $this->configCommandExecutor->executeAfterFromVersion($testName);
+        $this->stepExecutor->executeAfterFromVersion($testName);
 
         //$this->logger->info('Pre-upgrade steps');
-        //$this->configCommandExecutor->executeBeforeToVersion($testName);
+        //$this->stepExecutor->executeBeforeToVersion($testName);
 
         $this->logger->info('Upgrading Magento');
-        $this->configCommandExecutor->executeToVersion($testName);
+        $this->stepExecutor->executeToVersion($testName);
 
         $this->logger->info('Post-Upgrade Steps');
-        $this->configCommandExecutor->executeAfterToVersion($testName);
+        $this->stepExecutor->executeAfterToVersion($testName);
 
         $this->logger->info('Ending Test ' . $testName);
     }
