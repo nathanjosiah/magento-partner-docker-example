@@ -16,12 +16,12 @@ class Converter
     public function convert(\DOMDocument $document): array
     {
         // TODO convert real document to array
-        $config = [];
-        $xpath = new \DOMXPath($document);
-        $testNodes = $xpath->query('/tests');
-        foreach ($testNodes as $testNode) {
-            $config[$testNode->getAttribute('name')] = [/* etc */];
-        }
+        //$config = [];
+        //$xpath = new \DOMXPath($document);
+        //$testNodes = $xpath->query('/tests');
+        //foreach ($testNodes as $testNode) {
+        //    $config[$testNode->getAttribute('name')] = [/* etc */];
+        //}
         //return $config;
 
         // fake implementation
