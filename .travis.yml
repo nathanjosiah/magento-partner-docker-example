@@ -2,5 +2,4 @@ language: bash
 services:
   - docker
 script:
-  - bash -c 'env | grep MAGE_ > file && cat file'
-
+  - bash cicd.sh
