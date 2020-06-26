@@ -111,7 +111,7 @@ COMPOSER
         $this->commandFlow($flow->getBefore());
         switch($node->getAttribute('type')) {
             case 'composer':
-                if (file_exists("$path/vendor")) {
+                if (file_exists("{$this->path}/vendor")) {
                     $this->log('Magento is already installed');
                     return;
                 }
@@ -125,7 +125,7 @@ COMPOSER
                 $this->log($command);
                 // This probably belongs to after flow instead of being hardcoded
                 $this->log('Running highly unsafe permission change to 777 for everything for now.');
-                `chmod -R 777 /magento/magento-ce`;
+                `chmod -R 777 {$this->path}`;
                 break;
             default:
                 throw new \RuntimeException('Unknown source type: ' . $node->getAttribute('type'));
