@@ -49,7 +49,7 @@ class Composer implements StrategyInterface
         $package = $installConfig['package'] . ':' . $installConfig['version'];
         $phpVersion = $config->getServiceOption(ConfigInterface::PHASE_FROM, 'php', 'version');
         $this->phpExecutor->runCommand(
-            'php composer \
+            'composer \
             create-project --repository-url=https://repo.magento.com/ \
             ' . $package . '\
              /magento/magento-ce',
