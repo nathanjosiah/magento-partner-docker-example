@@ -75,7 +75,7 @@ class Command
     public function buildCommand(): string
     {
         $arguments = $this->getArguments($this->commandNode);
-        return $this->buildParameters($arguments);
+        return "{$this->path} {$this->buildParameters($arguments)}";
     }
 
     /**

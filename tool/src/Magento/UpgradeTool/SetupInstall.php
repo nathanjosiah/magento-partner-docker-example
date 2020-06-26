@@ -19,10 +19,9 @@ class SetupInstall extends AbstractCommand
 {
     protected static $defaultName = 'setup:install';
 
-    const GLUE = ' ';
-
     private $test;
     private $dom;
+    private string $path;
 
     private $input;
 
@@ -105,13 +104,13 @@ COMPOSER
      */
     private function composerCreate(\DOMNode $node): void
     {
+        $this->path = $this->dom->getPath($node);
         $flow = new CommandFlow($this->dom, $node);
         // Before commands
         $this->log('Before command flow');
         $this->commandFlow($flow->getBefore());
         switch($node->getAttribute('type')) {
             case 'composer':
-                $path = $this->dom->getPath($node);
                 if (file_exists("$path/vendor")) {
                     $this->log('Magento is already installed');
                     return;
@@ -146,7 +145,7 @@ COMPOSER
             $this->log("Executing command {$command->getName()} (container: {$command->getContainer()}).");
             $execute = $command->buildCommand();
             $this->log($execute);
-            $this->runPhp($execute);
+            $this->runPhp($execute, null, $this->path);
         }
     }
 }

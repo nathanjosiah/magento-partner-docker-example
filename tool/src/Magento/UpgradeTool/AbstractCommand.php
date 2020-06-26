@@ -53,8 +53,12 @@ class AbstractCommand extends Command
         $this->output->writeln('<fg=' . $color . '>' . $string . '</>', OutputInterface::VERBOSITY_NORMAL);
     }
 
-    protected function runPhp(string $command, string $phpVersion = null): void
+    protected function runPhp(string $command, string $phpVersion = null, string $path = null): void
     {
+        // Change default directory to make sure that both absolute and relative commands work
+        if ($path) {
+            chdir($path);
+        }
         $full = 'docker run --rm \
             --network cicd\
             -e COMPOSER_HOME=/magento/.composer\
