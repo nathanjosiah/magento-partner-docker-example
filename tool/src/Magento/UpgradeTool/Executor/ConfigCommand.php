@@ -39,8 +39,8 @@ class ConfigCommand
         if ($command['type'] === 'tool') {
             $this->toolExecutor->runCommand(implode(' ', $command['arguments']));
         } elseif ($command['type'] === 'php') {
-            // $this->phpExecutor->runCommand(...);
-        } elseif($command['type'] === 'shell') {
+            $this->phpExecutor->runCommand(implode(' ', $command['arguments']), $command['version']);
+        } elseif ($command['type'] === 'shell') {
             // $this->shellExecutor->exec(...);
         }
     }
