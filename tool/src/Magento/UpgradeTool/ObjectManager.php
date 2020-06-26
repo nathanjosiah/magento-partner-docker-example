@@ -86,4 +86,15 @@ class ObjectManager implements ContainerInterface
 
         return $this->cache[$id];
     }
+
+    /**
+     * Set an object by id
+     *
+     * @param string $id
+     * @param object $object
+     */
+    public function set(string $id, object $object): void
+    {
+        $this->cache[$id] = $object;
+    }
 }
