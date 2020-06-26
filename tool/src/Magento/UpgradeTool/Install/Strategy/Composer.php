@@ -47,7 +47,7 @@ class Composer implements StrategyInterface
         }
         $installConfig = $config->getInstallConfig();
         $package = $installConfig['package'] . ':' . $installConfig['version'];
-        $phpVersion = $config->getServiceOption(ConfigInterface::EVENT_BEFORE, 'php', 'version');
+        $phpVersion = $config->getServiceOption(ConfigInterface::PHASE_FROM, 'php', 'version');
         $this->phpExecutor->runCommand(
             'php composer \
             create-project --repository-url=https://repo.magento.com/ \
