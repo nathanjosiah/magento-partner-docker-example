@@ -14,43 +14,34 @@ namespace Magento\UpgradeTool\Executor;
 class ConfigCommand
 {
     /**
+     * @var Shell
+     */
+    private $shellExecutor;
+    /**
+     * @var Php
+     */
+    private $phpExecutor;
+    /**
      * @var Tool
      */
     private $toolExecutor;
 
-    public function __construct(
-        Tool $toolExecutor
-        // Config $config
-    ) {
-        // $this->config = $config;
+    public function __construct(Shell $shellExecutor, Php $phpExecutor, Tool $toolExecutor)
+    {
+        $this->shellExecutor = $shellExecutor;
+        $this->phpExecutor = $phpExecutor;
         $this->toolExecutor = $toolExecutor;
     }
 
-    public function executeFromVersion(string $testName): void
+    public function runCommand(array $command): void
     {
-        // desired pseudo-implementation:
-
-        // $testConfig = $this->config->getTestConfig($testName);
-        // $stepsAndStuff = $testConfig->getFromVersionStepsOrSomething('before');
-
-
-        // Fake implementation placeholder:
-        $this->toolExecutor->runCommand('setup:install --php 7.3');
-    }
-
-    public function executeAfterFromVersion(string $testName): void
-    {
-        // Again, make more flexible as described above
-        $this->toolExecutor->runCommand('verify:mftf AdminLoginTest --php 7.3');
-    }
-
-    public function executeToVersion(string $testName): void
-    {
-        // TODO
-    }
-
-    public function executeAfterToVersion(string $testName): void
-    {
-        $this->toolExecutor->runCommand('verify:mftf AdminLoginTest --php 7.4');
+        //TODO resolve command with glue and such and run it
+        if ($command['type'] === 'tool') {
+            $this->toolExecutor->runCommand(implode(' ', $command['arguments']));
+        } elseif ($command['type'] === 'php') {
+            // $this->phpExecutor->runCommand(...);
+        } elseif($command['type'] === 'shell') {
+            // $this->shellExecutor->exec(...);
+        }
     }
 }

@@ -24,14 +24,14 @@ class Test
      */
     private $logger;
     /**
-     * @var ConfigCommand
+     * @var Step
      */
     private $configCommandExecutor;
 
     public function __construct(
         Tool $toolExecutor,
         LoggerInterface $logger,
-        ConfigCommand $configCommandExecutor
+        Step $configCommandExecutor
     ) {
         $this->toolExecutor = $toolExecutor;
         $this->logger = $logger;
