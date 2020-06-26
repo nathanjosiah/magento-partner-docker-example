@@ -12,6 +12,7 @@ namespace Magento\UpgradeTool\Install\Strategy;
 use Magento\UpgradeTool\Config\TestConfig;
 use Magento\UpgradeTool\ConfigInterface;
 use Magento\UpgradeTool\Executor\Php;
+use Magento\UpgradeTool\Executor\Shell;
 use Magento\UpgradeTool\Install\StrategyInterface;
 use Psr\Log\LoggerInterface;
 
@@ -28,11 +29,16 @@ class Composer implements StrategyInterface
      * @var Php
      */
     private $phpExecutor;
+    /**
+     * @var Shell
+     */
+    private $shelExecutor;
 
-    public function __construct(LoggerInterface $logger, Php $phpExecutor)
+    public function __construct(LoggerInterface $logger, Php $phpExecutor, Shell $shelExecutor)
     {
         $this->logger = $logger;
         $this->phpExecutor = $phpExecutor;
+        $this->shelExecutor = $shelExecutor;
     }
 
     /**
@@ -45,15 +51,36 @@ class Composer implements StrategyInterface
             $this->logger->warning('Magento is already installed');
             return;
         }
+        $composerUsername = getenv('MAGE_COMPOSER_USERNAME');
+        $composerPassword = getenv('MAGE_COMPOSER_PASSWORD');
         $installConfig = $config->getInstallConfig();
         $package = $installConfig['package'] . ':' . $installConfig['version'];
-        $phpVersion = $config->getServiceOption(ConfigInterface::EVENT_BEFORE, 'php', 'version');
+        $phpVersion = $config->getServiceOption(ConfigInterface::PHASE_FROM, 'php', 'version');
+
+        $this->logger->info('Installing ' . $phpVersion);
+        mkdir('/magento/.composer');
+
+        file_put_contents('/magento/.composer/auth.json',
+            <<<COMPOSER
+{
+  "http-basic": {
+  "repo.magento.com": {
+      "username": "${composerUsername}",
+          "password": "${composerPassword}"
+      }
+  }
+}
+COMPOSER
+        );
+
         $this->phpExecutor->runCommand(
-            'php composer \
+            'composer \
             create-project --repository-url=https://repo.magento.com/ \
             ' . $package . '\
              /magento/magento-ce',
             $phpVersion
         );
+
+        $this->shelExecutor->exec('chmod -R 777 /magento/magento-ce');
     }
 }
