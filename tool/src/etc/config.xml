@@ -12,17 +12,26 @@
                 <description>The most basic upgrade</description>
             </annotations>
             <fromVersion type="composer">
-                <before>
-                    <!-- Commands that run before "composer create-project" go here. -->
-                </before>
                 <!-- Create project parameters -->
                 <package>magento/project-community-edition</package>
                 <version>2.3.5</version>
                 <path>/magento/magento-ce</path>
+                <services>
+                    <service name="php">
+                        <arguments>
+                            <argument name="version">7.3</argument>
+                        </arguments>
+                    </service>
+                    <service name="elasticsearch">
+                        <arguments>
+                            <argument name="version">7.6-1.2</argument>
+                        </arguments>
+                    </service>
+                </services>
                 <after>
                     <!-- Command that run after "composer create-project" go here -->
                     <!-- Sample: Do not import anything. Set up a new environment -->
-                    <command container="php" path="bin/magento" name="install">
+                    <command container="php" path="bin/magento" name="install" version="7.3">
                         <arguments>
                             <argument key="command">setup:install</argument>
                             <argument key="admin_firstname" name="--admin-firstname">Tanel</argument>
@@ -40,55 +49,54 @@
                             <argument key="use_rewrites" name="--use-rewrites">1</argument>
                         </arguments>
                     </command>
-                    <command container="php" name="set_indexer_mode" path="bin/magento">
+                    <command container="php" name="set_indexer_mode" path="bin/magento" version="7.3">
                         <arguments>
                             <argument key="command">indexer:set-mode</argument>
-                            <argument key="mode">production</argument>
+                            <argument key="mode">schedule</argument>
                         </arguments>
                     </command>
-                    <command container="php" name="set_deploy_mode" path="bin/magento">
+                    <command container="php" name="set_deploy_mode" path="bin/magento" version="7.3">
                         <arguments>
                             <argument key="command">deploy:mode:set</argument>
                             <argument key="mode">production</argument>
                         </arguments>
                     </command>
-                    <command container="php" name="magento_account_sharing" path="bin/magento">
+                    <command container="php" name="magento_account_sharing" path="bin/magento" version="7.3">
                         <arguments>
                             <argument key="command">config:set</argument>
                             <argument key="path" name="admin/security/admin_account_sharing">1</argument>
                         </arguments>
                     </command>
-                    <command container="php" name="disable_secret_key" path="bin/magento">
+                    <command container="php" name="disable_secret_key" path="bin/magento" version="7.3">
                         <arguments>
                             <argument key="command">config:set</argument>
                             <argument key="path" name="admin/security/use_form_key">0</argument>
                         </arguments>
                     </command>
-                    <command container="php" name="mftf_reset" path="vendor/bin/mftf">
+                    <command container="php" name="mftf_reset" path="vendor/bin/mftf" version="7.3">
                         <arguments>
                             <argument key="command">reset</argument>
                             <argument key="hard">--hard</argument>
                         </arguments>
                     </command>
-                    <command container="php" name="mftf_build" path="vendor/bin/mftf">
+                    <command container="php" name="mftf_build" path="vendor/bin/mftf" version="7.3">
                         <arguments>
                             <argument key="command">build:project</argument>
                         </arguments>
                     </command>
                 </after>
             </fromVersion>
-            <services>
-                <service name="php">
-                    <arguments>
-                        <argument name="version">7.3</argument>
-                    </arguments>
-                </service>
-                <service name="elasticsearch">
-                    <arguments>
-                        <argument name="version">7.6-1.2</argument>
-                    </arguments>
-                </service>
-            </services>
+            <toVersion type="git">
+                <repo>git@github.com:magento-borg/magento2ce</repo>
+                <branch>MC-12345</branch>
+                <services>
+                    <service name="php">
+                        <arguments>
+                            <argument name="version">7.4</argument>
+                        </arguments>
+                    </service>
+                </services>
+            </toVersion>
         </test>
     </tests>
 </config>

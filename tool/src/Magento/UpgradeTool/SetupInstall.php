@@ -120,7 +120,7 @@ COMPOSER
                 $this->log("Installing Magento $version package ($package).");
                 $this->log('Creating composer auth.json file,');
                 $this->createAuth();
-                $command = "composer create-project --repository-url=https://repo.magento.com/ $package:$version $path";
+                $command = "composer create-project --repository-url=https://repo.magento.com/ $package:$version {$this->path}";
                 $this->runPhp($command);
                 $this->log($command);
                 // This probably belongs to after flow instead of being hardcoded

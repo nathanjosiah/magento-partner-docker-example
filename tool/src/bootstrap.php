@@ -10,7 +10,9 @@ use Magento\UpgradeTool\ObjectManager;
 
 require __DIR__ . '/vendor/autoload.php';
 
+define('TMP_HACK_APP_DIR', __DIR__);
 $config = include __DIR__ . '/etc/di.php';
 $injector = new Injector(new Config($config));
 $objectManager = new ObjectManager($injector);
+$injector->setContainer($objectManager);
 ObjectManager::setInstance($objectManager);

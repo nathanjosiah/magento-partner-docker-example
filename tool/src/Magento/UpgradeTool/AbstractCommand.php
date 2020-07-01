@@ -8,8 +8,9 @@ declare(strict_types=1);
 
 namespace Magento\UpgradeTool;
 
+use Magento\UpgradeTool\Executor\Php;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -19,6 +20,27 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class AbstractCommand extends Command
 {
+    /**
+     * @var Php
+     */
+    private $phpExecutor;
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
+     * @param Php $phpExecutor
+     * @param LoggerInterface $logger
+     * @param string|null $name
+     */
+    public function __construct(Php $phpExecutor, LoggerInterface $logger, string $name = null)
+    {
+        parent::__construct($name);
+        $this->phpExecutor = $phpExecutor;
+        $this->logger = $logger;
+    }
+
     /**
      * @var OutputInterface
      */
@@ -48,9 +70,9 @@ class AbstractCommand extends Command
         $this->output = $output;
     }
 
-    protected function log(string $string, string $color = 'blue', bool $newline = true): void
+    protected function log(string $message): void
     {
-        $this->output->writeln('<fg=' . $color . '>' . $string . '</>', OutputInterface::VERBOSITY_NORMAL);
+        $this->logger->info($message);
     }
 
     protected function runPhp(string $command, string $phpVersion = null, string $path = null): void
@@ -59,13 +81,6 @@ class AbstractCommand extends Command
         if ($path) {
             chdir($path);
         }
-        $full = 'docker run --rm \
-            --network cicd\
-            -e COMPOSER_HOME=/magento/.composer\
-            -v mage:/magento magento/magento-cloud-docker-php:' . ($phpVersion ?: $this->phpVersion) .'-cli-1.2 \
-            ' . $command;
-        $this->log('Running:' . $full, 'white');
-        // passthru will stream the output in real time without modification
-        passthru($full);
+        $this->phpExecutor->runCommand($command, $phpVersion ?: $this->phpVersion);
     }
 }
