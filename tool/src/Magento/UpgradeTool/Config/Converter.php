@@ -17,15 +17,32 @@ class Converter
 {
     const CONFIG_GLUE = ' ';
 
+    /**
+     * @var LoggerInterface
+     */
     private LoggerInterface $logger;
+    /**
+     * @var \DOMXPath
+     */
     private \DOMXPath $xpath;
+    /**
+     * @var string
+     */
     private string $path;
 
+    /**
+     * Converter constructor.
+     * @param LoggerInterface $logger
+     */
     public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
     }
 
+    /**
+     * @param \DOMDocument $document
+     * @return array
+     */
     public function convert(\DOMDocument $document): array
     {
         $this->logger->debug("Generating XPath");
