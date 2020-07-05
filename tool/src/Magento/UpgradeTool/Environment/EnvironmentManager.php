@@ -53,7 +53,7 @@ class EnvironmentManager
         $this->scriptExecutor->startService(ScriptExecutor::SERVICE_MYSQL, ScriptExecutor::MYSQL_VERSION_5_7);
 
         $this->logger->info('Starting ElasticSearch 7');
-        $this->scriptExecutor->startService(ScriptExecutor::SERVICE_ELASTICSEARCH, ScriptExecutor::ELASTICSEARCH_VERSION_7_2);
+        $this->scriptExecutor->startService(ScriptExecutor::SERVICE_ELASTICSEARCH, ScriptExecutor::ELASTICSEARCH_VERSION_7_6);
 
         $this->logger->info('Starting Nginx for php73');
         $this->scriptExecutor->startService(ScriptExecutor::SERVICE_NGINX, ScriptExecutor::NGINX_PHP_7_3);

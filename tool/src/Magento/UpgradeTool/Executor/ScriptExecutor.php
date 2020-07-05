@@ -14,7 +14,7 @@ class ScriptExecutor
     const MYSQL_VERSION_5_7 = '5.7';
     const PHP_VERSION_7_3 = '7.3';
     const PHP_VERSION_7_4 = '7.4';
-    const ELASTICSEARCH_VERSION_7_2 = '7.2';
+    const ELASTICSEARCH_VERSION_7_6 = '7.6';
     const NGINX_PHP_7_3 = '7.3';
     const NGINX_PHP_7_4 = '7.4';
 

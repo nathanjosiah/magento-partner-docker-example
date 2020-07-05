@@ -7,12 +7,12 @@ if [[ "$service" = "selenium" ]]; then
     -p 4444:4444 -p 5900:5900 \
     --name selenium \
     --network cicd \
-    --link magento-php$(echo -n $service | sed 's/\.//'):magento \
+    --link magento-php$(echo -n $version | sed 's/\.//'):magento \
     -v /dev/shm:/dev/shm \
     selenium/standalone-chrome-debug:3.141.59-gold
 elif [[ "$service" = "php" ]]; then
   docker run --rm -d \
-    --name fpm-$(echo -n $service | sed 's/\.//') \
+    --name fpm-$(echo -n $version | sed 's/\.//') \
     --network cicd \
     -v mage:/magento\
     -w=/magento/magento-ce\
@@ -35,7 +35,7 @@ elif [[ "$service" = "nginx" ]]; then
   # TODO add names params for extra info like phpversion to distinguish nginx version from phpversion
   docker run --rm -d \
     --network cicd \
-    --name magento-php$(echo -n $service | sed 's/\.//') \
-    -e FPM_HOST=fpm-$(echo -n $service | sed 's/\.//')\
+    --name magento-php$(echo -n $version | sed 's/\.//') \
+    -e FPM_HOST=fpm-$(echo -n $version | sed 's/\.//')\
     -v mage:/magento magento
 fi
