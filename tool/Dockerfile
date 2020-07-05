@@ -10,6 +10,7 @@ RUN apt-get -y install docker-ce
 RUN echo $(which docker)
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 COPY ./src /app
+RUN chmod -R +x /app/scripts
 RUN /usr/bin/composer install -d /app
 
 WORKDIR /app
