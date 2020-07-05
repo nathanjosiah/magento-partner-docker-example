@@ -15,19 +15,15 @@ use Psr\Log\LoggerInterface;
  */
 class Php
 {
-    /**
-     * @var Shell
-     */
-    private $shellExecutor;
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
 
-    public function __construct(Shell $shellExecutor, LoggerInterface $logger)
+    /**
+     * @var ScriptExecutor
+     */
+    private $scriptExecutor;
+
+    public function __construct(ScriptExecutor $scriptExecutor)
     {
-        $this->shellExecutor = $shellExecutor;
-        $this->logger = $logger;
+        $this->scriptExecutor = $scriptExecutor;
     }
 
     /**
@@ -39,14 +35,6 @@ class Php
      */
     public function runCommand(string $command, string $phpVersion): ?string
     {
-        $full = 'docker run --rm \
-            --network cicd\
-            -e COMPOSER_HOME=/magento/.composer\
-            -v mage:/magento \
-            --link magento-php' . str_replace('.', '', $phpVersion) . ':magento \
-            magento/magento-cloud-docker-php:' . $phpVersion .'-cli-1.2 \
-            ' . $command;
-
-        return $this->shellExecutor->exec($full, true);
+        return $this->scriptExecutor->runPhpCommand($command, $phpVersion);
     }
 }

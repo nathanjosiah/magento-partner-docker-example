@@ -25,6 +25,12 @@ docker build -t magento ./nginx
 info 'Building Mariadb'
 docker build -t db ./db
 
+info 'Pulling images'
+docker pull magento/magento-cloud-docker-php:7.3-cli-1.2
+docker pull magento/magento-cloud-docker-php:7.3-fpm-1.2
+docker pull magento/magento-cloud-docker-php:7.4-cli-1.2
+docker pull magento/magento-cloud-docker-php:7.4-fpm-1.2
+
 info 'Initializing environment'
 docker run --rm \
   --name tool \

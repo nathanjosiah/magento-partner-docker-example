@@ -13,14 +13,15 @@ namespace Magento\UpgradeTool\Executor;
  */
 class Tool
 {
-    /**
-     * @var Shell
-     */
-    private $shellExecutor;
 
-    public function __construct(Shell $shellExecutor)
+    /**
+     * @var ScriptExecutor
+     */
+    private $scriptExecutor;
+
+    public function __construct(ScriptExecutor $scriptExecutor)
     {
-        $this->shellExecutor = $shellExecutor;
+        $this->scriptExecutor = $scriptExecutor;
     }
 
     /**
@@ -31,13 +32,6 @@ class Tool
      */
     public function runCommand(string $command): ?string
     {
-        $full = 'docker run --rm \
-         --network cicd \
-         --env-file <(env | grep MAGE_) \
-         -v /var/run/docker.sock:/var/run/docker.sock \
-         -v mage:/magento \
-         tool ' . $command;
-
-        return $this->shellExecutor->exec($full, false);
+        return $this->scriptExecutor->runToolCommand($command);
     }
 }
