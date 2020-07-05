@@ -1,6 +1,6 @@
 #!/bin/bash
-version=$1
-command=$2
+command=$1
+version=$2
 
 docker run --rm \
   --network cicd\
