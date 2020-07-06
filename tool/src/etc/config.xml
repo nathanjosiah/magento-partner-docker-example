@@ -85,6 +85,12 @@
                             <argument key="command">build:project</argument>
                         </arguments>
                     </command>
+                    <command container="php" name="mftf_login" path="vendor/bin/mftf" version="7.3">
+                        <arguments>
+                            <argument key="command">run:test</argument>
+                            <argument key="test">AdminLoginTest</argument>
+                        </arguments>
+                    </command>
                 </after>
             </fromVersion>
             <toVersion type="git">
