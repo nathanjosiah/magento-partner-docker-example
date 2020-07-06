@@ -4,9 +4,8 @@ info () {
   echo -e "\033[0;34m" $* "\033[0m"
 }
 
-if [[ ! -f .env ]]; then
-  info "Didn't find an .env file. Assuming environment variables from host environment"
-  env | grep MAGE_ > .env
+if [[ -f .env ]]; then
+  export $(cat .env | xargs)
 fi
 
 DIND_CONTAINER=$(docker run -d --privileged -p 12375:2375 -p 4444:4444 -p 5900:5900 -e DOCKER_TLS_CERTDIR="" docker:dind)
