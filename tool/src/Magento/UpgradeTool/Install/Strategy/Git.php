@@ -42,7 +42,7 @@ class Git implements StrategyInterface
     {
         $this->logger->info('Installing magento using git strategy');
         $installConfig = $config->getInstallConfig();
-        $command = 'git clone --depth 1 --branch ' . $installConfig['branch'] . ' ' . $installConfig['repo'];
+        $command = 'git clone --depth 1 --branch ' . $installConfig['branch'] . ' ' . $installConfig['repo'] . ' /magento';
         $this->shellExecutor->exec($command);
     }
 }

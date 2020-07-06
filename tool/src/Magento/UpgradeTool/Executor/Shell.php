@@ -34,9 +34,7 @@ class Shell
      */
     public function exec(string $command, bool $return = true): ?string
     {
-        if ($return) {
-            ob_start();
-        }
+        ob_start();
 
         $this->logger->debug($command);
 

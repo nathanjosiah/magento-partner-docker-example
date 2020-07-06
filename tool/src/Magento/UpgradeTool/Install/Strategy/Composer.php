@@ -74,10 +74,7 @@ COMPOSER
         );
 
         $this->phpExecutor->runCommand(
-            'composer \
-            create-project --repository-url=https://repo.magento.com/ \
-            ' . $package . '\
-             /magento/magento-ce',
+            'composer create-project --repository-url=https://repo.magento.com/ ' . $package . ' /magento/magento-ce',
             $phpVersion
         );
 
