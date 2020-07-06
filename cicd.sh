@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [[ -z "$DISABLE_ERRORS" ]]; then
+  set -e
+fi
+
 info () {
   echo -e "\033[0;34m" $* "\033[0m"
 }
@@ -23,12 +27,6 @@ info 'Building Nginx'
 docker build -t magento ./nginx
 info 'Building Mariadb'
 docker build -t db ./db
-
-info 'Pulling images'
-docker pull magento/magento-cloud-docker-php:7.3-cli-1.2
-docker pull magento/magento-cloud-docker-php:7.3-fpm-1.2
-docker pull magento/magento-cloud-docker-php:7.4-cli-1.2
-docker pull magento/magento-cloud-docker-php:7.4-fpm-1.2
 
 info 'Initializing environment'
 bash ./tool/src/scripts/tool-command.sh env:build
