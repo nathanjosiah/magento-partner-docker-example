@@ -63,7 +63,11 @@ class EnvironmentManager
 
     public function startSelenium(string $phpVersion): void
     {
-        $this->scriptExecutor->stopService(ScriptExecutor::SERVICE_SELENIUM, $phpVersion);
+        try {
+            $this->scriptExecutor->stopService(ScriptExecutor::SERVICE_SELENIUM, $phpVersion);
+        } catch (\Throwable $exception) {
+            // it may not be running. That's fine.
+        }
         $this->scriptExecutor->startService(ScriptExecutor::SERVICE_SELENIUM, $phpVersion);
     }
 }
