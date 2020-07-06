@@ -18,7 +18,11 @@ class RunUnitTests extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        passthru(\PHP_BINARY . ' /app/vendor/bin/phpunit -c /app/test/phpunit.xml');
+        passthru(\PHP_BINARY . ' /app/vendor/bin/phpunit -c /app/test/phpunit.xml', $exitCode);
+
+        if ($exitCode) {
+            return 1;
+        }
 
         return 0;
     }

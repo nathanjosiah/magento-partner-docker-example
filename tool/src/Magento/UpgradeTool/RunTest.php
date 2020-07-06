@@ -23,13 +23,19 @@ class RunTest extends Command
      * @var TestExecutor
      */
     private $testExecutor;
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
 
     public function __construct(
         TestExecutor $testExecutor,
+        LoggerInterface $logger,
         string $name = null
     ) {
         parent::__construct($name);
         $this->testExecutor = $testExecutor;
+        $this->logger = $logger;
     }
 
     protected function configure()
@@ -46,7 +52,14 @@ class RunTest extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $testName = $input->getArgument('test-name');
-        $this->testExecutor->exec($testName);
+
+        try {
+            $this->testExecutor->exec($testName);
+        } catch (\Throwable $exception) {
+            $this->logger->critical($exception->getMessage());
+
+            return 1;
+        }
 
         return 0;
     }

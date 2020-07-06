@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace Magento\UpgradeTool;
 
+use Magento\UpgradeTool\Check\Mftf;
 use Magento\UpgradeTool\Environment\EnvironmentManager;
 use Magento\UpgradeTool\Executor\Php;
 use Psr\Log\LoggerInterface;
@@ -20,18 +21,23 @@ class RunMftfTest extends AbstractCommand
 {
     protected static $defaultName = 'verify:mftf';
     /**
-     * @var EnvironmentManager
+     * @var Mftf
      */
-    private $environmentManager;
+    private $mftf;
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
 
     public function __construct(
         Php $phpExecutor,
         LoggerInterface $logger,
-        EnvironmentManager $environmentManager,
+        Mftf $mftf,
         string $name = null
     ) {
         parent::__construct($phpExecutor, $logger, $name);
-        $this->environmentManager = $environmentManager;
+        $this->mftf = $mftf;
+        $this->logger = $logger;
     }
 
 
@@ -49,30 +55,16 @@ class RunMftfTest extends AbstractCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         parent::execute($input, $output);
-        $userPassword = getenv('MAGE_ADMIN_PASSWORD');
         $testName = $input->getArgument('test-name');
         $phpVersion = $input->getOption('php');
 
-        $this->log('Setting up MFTF');
-        $this->runPhp('php /magento/magento-ce/vendor/bin/mftf reset --hard');
-        file_put_contents('/magento/magento-ce/dev/tests/acceptance/.env', <<<ENV
-MAGENTO_BASE_URL=http://magento/
-MAGENTO_BACKEND_NAME=admin
-MAGENTO_ADMIN_USERNAME=admin
-MAGENTO_ADMIN_PASSWORD=$userPassword
-BROWSER=chrome
-MODULE_WHITELIST=Magento_Framework,Magento_ConfigurableProductWishlist,Magento_ConfigurableProductCatalogSearch
-DEFAULT_TIMEZONE=America/Chicago
-SELENIUM_HOST=selenium
-ENV
-        );
-        $this->runPhp('php /magento/magento-ce/vendor/bin/mftf build:project');
+        try {
+            $this->mftf->runTest($testName, $phpVersion);
+        } catch (\Throwable $exception) {
+            $this->logger->critical($exception->getMessage());
 
-        $this->environmentManager->startSelenium($phpVersion);
-
-        $this->log('Running MFTF test ' . $testName . ' using PHP ' . $phpVersion);
-        $this->runPhp('php /magento/magento-ce/vendor/bin/mftf run:test ' . $testName);
-
+            return 1;
+        }
 
         return 0;
     }
