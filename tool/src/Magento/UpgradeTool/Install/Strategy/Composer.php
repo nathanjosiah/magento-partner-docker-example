@@ -78,7 +78,6 @@ COMPOSER
             "composer create-project --repository-url=https://repo.magento.com/ $package $path",
             $phpVersion
         );
-
         $this->shelExecutor->exec("chmod -R 777 $path");
     }
 }
