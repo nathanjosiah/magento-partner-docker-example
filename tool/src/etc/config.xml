@@ -36,13 +36,14 @@
                             <argument key="command">setup:install</argument>
                             <argument key="admin_firstname" name="--admin-firstname" glue="=">Tanel</argument>
                             <argument key="admin_lastname" name="--admin-lastname" glue="=">Raja</argument>
-                            <argument key="admin_email" name="--admin-email" glue="=">tanel.raja@vaimo.com</argument>
+                            <argument key="admin_email" name="--admin-email" glue="=">{_ENV.MAGE_ADMIN_EMAIL}</argument>
                             <argument key="admin_user" name="--admin-user" glue="=">admin</argument>
-                            <argument key="admin_password" name="--admin-password" glue="=">admin123</argument>
+                            <argument key="admin_password" name="--admin-password" glue="=">{_ENV.MAGE_ADMIN_PASSWORD}</argument>
                             <argument key="base_url" name="--base-url" glue="=">http://magento/</argument>
                             <argument key="db_host" name="--db-host" glue="=">db</argument>
                             <argument key="db_name" name="--db-name" glue="=">main</argument>
                             <argument key="db_user" name="--db-user" glue="=">root</argument>
+                            <argument key="db_pw" name="--db-password" glue="=">secretpw</argument>
                             <argument key="currency" name="--currency" glue="=">USD</argument>
                             <argument key="timezone" name="--timezone" glue="=">America/Chicago</argument>
                             <argument key="language" name="--language" glue="=">en_US</argument>

@@ -211,10 +211,13 @@ class Converter
             if (!$glue = $argument->getAttribute('glue')) {
                 $glue = self::CONFIG_GLUE;
             }
+            $value = $argumentValue = preg_replace_callback('/\{_ENV\.(.*?)\}/', function($value) {
+                return getenv($value[1]);
+            }, $argument->nodeValue);
             if ($argument->getAttribute('name')) {
-                $argumentList[] = "{$argument->getAttribute('name')}$glue{$argument->nodeValue}";
+                $argumentList[] = "{$argument->getAttribute('name')}{$glue}{$value}";
             } else {
-                $argumentList[] = $argument->nodeValue;
+                $argumentList[] = $value;
             }
         }
         return $argumentList;
