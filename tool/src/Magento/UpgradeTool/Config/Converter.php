@@ -45,11 +45,10 @@ class Converter
      */
     public function convert(\DOMDocument $document): array
     {
-        $this->logger->debug("Generating XPath");
+        $this->logger->debug('Converting config');
         $this->xpath = new \DOMXPath($document);
         $config = [];
         $config['tests'] = $this->getTests($document);
-        // $this->logger->debug(print_r($config, true));
         return $config;
     }
 
@@ -142,9 +141,7 @@ class Converter
         foreach ($services as $service) {
             $serviceList[$service->getAttribute('name')] = $this->getServiceArguments($service);
         }
-        return [
-            'services' => $serviceList
-        ];
+        return $serviceList;
     }
 
     /**

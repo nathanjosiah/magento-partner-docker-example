@@ -44,7 +44,7 @@ class TestConfig
      */
     public function getServiceOption(string $phase, string $serviceName, string $optionName): string
     {
-        return $this->data[$phase]['services'][$serviceName][$optionName];
+        return $this->data[$phase]['services'][$serviceName]['arguments'][$optionName];
     }
 
     public function getPreInstallCommands(): array
