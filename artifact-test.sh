@@ -12,11 +12,11 @@ if [[ -f .env ]]; then
   export $(cat .env | xargs)
 fi
 
-mkdir /artifacts
-chmod -R +w /artifacts
-export ARTIFACTS_DIRECTORY=/artifacts
+mkdir artifacts
+chmod -R +w artifacts
+export ARTIFACTS_DIRECTORY=$(pwd)/artifacts
 
-DIND_CONTAINER=$(docker run -d --privileged -v /artifacts:/artifacts -p 12375:2375 -p 4444:4444 -p 5900:5900 -e DOCKER_TLS_CERTDIR="" docker:dind)
+DIND_CONTAINER=$(docker run -d --privileged -v $(pwd)/artifacts:/artifacts -p 12375:2375 -p 4444:4444 -p 5900:5900 -e DOCKER_TLS_CERTDIR="" docker:dind)
 export DOCKER_HOST=tcp://localhost:12375
 
 info 'Creating volume'
