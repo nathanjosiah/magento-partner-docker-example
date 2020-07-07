@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace Magento\UpgradeTool\Check;
 
+use Magento\UpgradeTool\ArtifactManager;
 use Magento\UpgradeTool\Environment\EnvironmentManager;
 use Magento\UpgradeTool\Executor\Php;
 use Psr\Log\LoggerInterface;
@@ -29,20 +30,27 @@ class Mftf
      * @var EnvironmentManager
      */
     private $environmentManager;
+    /**
+     * @var ArtifactManager
+     */
+    private $artifactManager;
 
     /**
      * @param LoggerInterface $logger
      * @param Php $phpExecutor
      * @param EnvironmentManager $environmentManager
+     * @param ArtifactManager $artifactManager
      */
     public function __construct(
         LoggerInterface $logger,
         Php $phpExecutor,
-        EnvironmentManager $environmentManager
+        EnvironmentManager $environmentManager,
+        ArtifactManager $artifactManager
     ) {
         $this->logger = $logger;
         $this->phpExecutor = $phpExecutor;
         $this->environmentManager = $environmentManager;
+        $this->artifactManager = $artifactManager;
     }
 
     public function runTest(string $testName, string $phpVersion): void
@@ -66,6 +74,12 @@ ENV
         $this->environmentManager->startSelenium($phpVersion);
 
         $this->logger->info('Running MFTF test ' . $testName . ' using PHP ' . $phpVersion);
-        $this->phpExecutor->runCommand('php /magento/magento-ce/vendor/bin/mftf run:test ' . $testName, $phpVersion);
+
+        try {
+            $this->phpExecutor->runCommand('php /magento/magento-ce/vendor/bin/mftf run:test ' . $testName, $phpVersion);
+        } catch (\Throwable $exception) {
+            $this->artifactManager->saveFolderAsArtifact('/magento/magento-ce/dev/tests/acceptance/tests/_output', $testName);
+            throw $exception;
+        }
     }
 }

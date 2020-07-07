@@ -56,4 +56,9 @@ class ScriptExecutor
     {
         return $this->shellExecutor->exec('/app/scripts/sql.sh ' . escapeshellarg($sql));
     }
+
+    public function saveFolderAsArtifact(string $folder, string $name, bool $purgeAfter = true): void
+    {
+        $this->shellExecutor->exec('/app/scripts/save-artifact.sh ' . escapeshellarg($folder) . ' ' . escapeshellarg($name) . ' ' . ($purgeAfter ? '1' : ''));
+    }
 }

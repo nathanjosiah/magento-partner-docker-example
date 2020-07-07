@@ -2,4 +2,11 @@ language: bash
 services:
   - docker
 script:
-  - bash cicd.sh
+  - bash artifact-test.sh
+addons:
+  artifacts:
+    debug: true
+    paths:
+      - /artifacts
+    target_paths:
+      - /${TRAVIS_BUILD_NUMBER}/${TRAVIS_JOB_NUMBER}

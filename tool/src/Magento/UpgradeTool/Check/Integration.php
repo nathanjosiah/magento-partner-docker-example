@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace Magento\UpgradeTool\Check;
 
+use Magento\UpgradeTool\ArtifactManager;
 use Magento\UpgradeTool\Environment\EnvironmentManager;
 use Magento\UpgradeTool\Executor\Php;
 use Magento\UpgradeTool\Executor\ScriptExecutor;
@@ -34,23 +35,30 @@ class Integration
      * @var ScriptExecutor
      */
     private $scriptExecutor;
+    /**
+     * @var ArtifactManager
+     */
+    private $artifactManager;
 
     /**
      * @param LoggerInterface $logger
      * @param Php $phpExecutor
      * @param ScriptExecutor $scriptExecutor
      * @param EnvironmentManager $environmentManager
+     * @param ArtifactManager $artifactManager
      */
     public function __construct(
         LoggerInterface $logger,
         Php $phpExecutor,
         ScriptExecutor $scriptExecutor,
-        EnvironmentManager $environmentManager
+        EnvironmentManager $environmentManager,
+        ArtifactManager $artifactManager
     ) {
         $this->logger = $logger;
         $this->phpExecutor = $phpExecutor;
         $this->environmentManager = $environmentManager;
         $this->scriptExecutor = $scriptExecutor;
+        $this->artifactManager = $artifactManager;
     }
 
     public function runTest(string $testName, string $phpVersion): void
@@ -79,6 +87,11 @@ ENV
             $this->logger->info('Create database failed. Probably already exists.');
         }
         $this->logger->info('Running Integration test ' . $testName . ' using PHP ' . $phpVersion);
-        $this->phpExecutor->runCommand('php /magento/magento-ce/vendor/bin/phpunit -c /magento/magento-ce/dev/tests/integration/phpunit.xml.dist ' . $testName, $phpVersion);
+
+        try {
+            $this->phpExecutor->runCommand('php /magento/magento-ce/vendor/bin/phpunit -c /magento/magento-ce/dev/tests/integration/phpunit.xml.dist ' . $testName, $phpVersion);
+        } catch (\Throwable $exception) {
+            $this->artifactManager->saveFolderAsArtifact('/magento/magento-ce/dev/tests/integration/var/allure-results', $testName);
+        }
     }
 }
