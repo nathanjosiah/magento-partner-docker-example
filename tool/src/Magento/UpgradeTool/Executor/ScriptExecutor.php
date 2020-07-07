@@ -51,4 +51,9 @@ class ScriptExecutor
     {
         return $this->shellExecutor->exec('/app/scripts/tool-command.sh ' . escapeshellarg($command));
     }
+
+    public function runSql(string $sql): string
+    {
+        return $this->shellExecutor->exec('/app/scripts/sql.sh ' . escapeshellarg($sql));
+    }
 }

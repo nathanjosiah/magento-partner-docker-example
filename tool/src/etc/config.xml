@@ -57,12 +57,6 @@
                             <argument key="mode">schedule</argument>
                         </arguments>
                     </command>
-                    <command container="php" name="set_deploy_mode" path="bin/magento" version="7.3">
-                        <arguments>
-                            <argument key="command">deploy:mode:set</argument>
-                            <argument key="mode">production</argument>
-                        </arguments>
-                    </command>
                     <command container="php" name="magento_account_sharing" path="bin/magento" version="7.3">
                         <arguments>
                             <argument key="command">config:set</argument>
@@ -75,11 +69,25 @@
                             <argument key="path" name="admin/security/use_form_key">0</argument>
                         </arguments>
                     </command>
+                    <!-- Integration tests have to run before deploy mode is set to production -->
+                    <command container="tool" name="product_test">
+                        <arguments>
+                            <argument key="command">verify:integration</argument>
+                            <argument key="test">/magento/magento-ce/dev/tests/integration/testsuite/Magento/Catalog/Model/ProductTest.php</argument>
+                            <argument key="php" name="--php">7.3</argument>
+                        </arguments>
+                    </command>
+                    <command container="php" name="set_deploy_mode" path="bin/magento" version="7.3">
+                        <arguments>
+                            <argument key="command">deploy:mode:set</argument>
+                            <argument key="mode">production</argument>
+                        </arguments>
+                    </command>
                     <command container="tool" name="admin_login_test">
                         <arguments>
                             <argument key="command">verify:mftf</argument>
                             <argument key="test">AdminLoginTest</argument>
-                            <argument key="test" name="--php">7.3</argument>
+                            <argument key="php" name="--php">7.3</argument>
                         </arguments>
                     </command>
                 </after>
