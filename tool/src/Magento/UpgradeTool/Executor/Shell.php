@@ -39,10 +39,14 @@ class Shell
         $this->logger->debug($command);
 
         // Will output directly without modification (compared to shell_exec)
-        passthru('bash -c ' . escapeshellarg($command));
+        passthru('bash -c ' . escapeshellarg($command), $exitCode);
 
         $output = ob_get_clean();
         $this->logger->debug($output);
+
+        if ($exitCode) {
+            throw new \RuntimeException('shell command exited with non-zero code');
+        }
 
         if ($return) {
             return $output;
