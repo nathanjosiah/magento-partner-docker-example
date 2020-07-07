@@ -7,6 +7,6 @@ addons:
   artifacts:
     debug: true
     paths:
-      - /artifacts
+      - ${TRAVIS_BUILD_DIR}/artifacts
     target_paths:
       - /${TRAVIS_BUILD_NUMBER}/${TRAVIS_JOB_NUMBER}
