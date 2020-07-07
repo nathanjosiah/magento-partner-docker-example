@@ -187,6 +187,9 @@ class Converter
         if ($commandList['type'] == 'php') {
             $commandList['arguments'] = $this->getCommandArguments($node, $this->path);
             $commandList['version'] = $node->getAttribute('version');
+        } elseif ($commandList['type'] == 'tool') {
+            $commandList['arguments'] = $this->getCommandArguments($node);
+            $commandList['version'] = $node->getAttribute('version');
         } else {
             $commandList['arguments'] = $this->getCommandArguments($node);
         }

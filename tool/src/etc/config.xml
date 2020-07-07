@@ -48,6 +48,7 @@
                             <argument key="timezone" name="--timezone" glue="=">America/Chicago</argument>
                             <argument key="language" name="--language" glue="=">en_US</argument>
                             <argument key="use_rewrites" name="--use-rewrites" glue="=">1</argument>
+                            <argument key="backend_frontname" name="--backend-frontname" glue="=">admin</argument>
                         </arguments>
                     </command>
                     <command container="php" name="set_indexer_mode" path="bin/magento" version="7.3">
@@ -74,21 +75,11 @@
                             <argument key="path" name="admin/security/use_form_key">0</argument>
                         </arguments>
                     </command>
-                    <command container="php" name="mftf_reset" path="vendor/bin/mftf" version="7.3">
+                    <command container="tool" name="admin_login_test">
                         <arguments>
-                            <argument key="command">reset</argument>
-                            <argument key="hard">--hard</argument>
-                        </arguments>
-                    </command>
-                    <command container="php" name="mftf_build" path="vendor/bin/mftf" version="7.3">
-                        <arguments>
-                            <argument key="command">build:project</argument>
-                        </arguments>
-                    </command>
-                    <command container="php" name="mftf_login" path="vendor/bin/mftf" version="7.3">
-                        <arguments>
-                            <argument key="command">run:test</argument>
+                            <argument key="command">verify:mftf</argument>
                             <argument key="test">AdminLoginTest</argument>
+                            <argument key="test" name="--php">7.3</argument>
                         </arguments>
                     </command>
                 </after>
