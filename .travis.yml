@@ -2,7 +2,7 @@ language: bash
 services:
   - docker
 script:
-  - bash artifact-test.sh
+  - bash artifact-test2.sh
 addons:
   artifacts:
     debug: true

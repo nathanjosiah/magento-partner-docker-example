@@ -90,7 +90,7 @@ ENV
 
         try {
             $this->phpExecutor->runCommand('php /magento/magento-ce/vendor/bin/phpunit -c /magento/magento-ce/dev/tests/integration/phpunit.xml.dist ' . $testName, $phpVersion);
-        } catch (\Throwable $exception) {
+        } finally {
             $this->artifactManager->saveFolderAsArtifact('/magento/magento-ce/dev/tests/integration/var/allure-results', $testName);
         }
     }
