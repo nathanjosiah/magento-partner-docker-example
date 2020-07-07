@@ -12,8 +12,10 @@
                 <description>The most basic upgrade</description>
             </annotations>
             <fromVersion type="composer">
-                <package>2.3.5</package>
-                <edition>ce</edition>
+                <!-- Create project parameters -->
+                <package>magento/project-community-edition</package>
+                <version>2.3.5</version>
+                <path>/magento/magento-ce</path>
                 <services>
                     <service name="php">
                         <arguments>
@@ -26,14 +28,61 @@
                         </arguments>
                     </service>
                 </services>
-                <before>
-                    <command type="php">
-                        <version>7.3</version>
+                <after>
+                    <!-- Command that run after "composer create-project" go here -->
+                    <!-- Sample: Do not import anything. Set up a new environment -->
+                    <command container="php" path="bin/magento" name="install" version="7.3">
                         <arguments>
-                            <argument>etc</argument>
+                            <argument key="command">setup:install</argument>
+                            <argument key="admin_firstname" name="--admin-firstname" glue="=">Tanel</argument>
+                            <argument key="admin_lastname" name="--admin-lastname" glue="=">Raja</argument>
+                            <argument key="admin_email" name="--admin-email" glue="=">{_ENV.MAGE_ADMIN_EMAIL}</argument>
+                            <argument key="admin_user" name="--admin-user" glue="=">admin</argument>
+                            <argument key="admin_password" name="--admin-password" glue="=">{_ENV.MAGE_ADMIN_PASSWORD}</argument>
+                            <argument key="base_url" name="--base-url" glue="=">http://magento/</argument>
+                            <argument key="db_host" name="--db-host" glue="=">db</argument>
+                            <argument key="db_name" name="--db-name" glue="=">main</argument>
+                            <argument key="db_user" name="--db-user" glue="=">root</argument>
+                            <argument key="db_pw" name="--db-password" glue="=">secretpw</argument>
+                            <argument key="currency" name="--currency" glue="=">USD</argument>
+                            <argument key="timezone" name="--timezone" glue="=">America/Chicago</argument>
+                            <argument key="language" name="--language" glue="=">en_US</argument>
+                            <argument key="use_rewrites" name="--use-rewrites" glue="=">1</argument>
+                            <argument key="backend_frontname" name="--backend-frontname" glue="=">admin</argument>
                         </arguments>
                     </command>
-                </before>
+                    <command container="php" name="set_indexer_mode" path="bin/magento" version="7.3">
+                        <arguments>
+                            <argument key="command">indexer:set-mode</argument>
+                            <argument key="mode">schedule</argument>
+                        </arguments>
+                    </command>
+                    <command container="php" name="set_deploy_mode" path="bin/magento" version="7.3">
+                        <arguments>
+                            <argument key="command">deploy:mode:set</argument>
+                            <argument key="mode">production</argument>
+                        </arguments>
+                    </command>
+                    <command container="php" name="magento_account_sharing" path="bin/magento" version="7.3">
+                        <arguments>
+                            <argument key="command">config:set</argument>
+                            <argument key="path" name="admin/security/admin_account_sharing">1</argument>
+                        </arguments>
+                    </command>
+                    <command container="php" name="disable_secret_key" path="bin/magento" version="7.3">
+                        <arguments>
+                            <argument key="command">config:set</argument>
+                            <argument key="path" name="admin/security/use_form_key">0</argument>
+                        </arguments>
+                    </command>
+                    <command container="tool" name="admin_login_test">
+                        <arguments>
+                            <argument key="command">verify:mftf</argument>
+                            <argument key="test">AdminLoginTest</argument>
+                            <argument key="test" name="--php">7.3</argument>
+                        </arguments>
+                    </command>
+                </after>
             </fromVersion>
             <toVersion type="git">
                 <repo>git@github.com:magento-borg/magento2ce</repo>
@@ -49,3 +98,4 @@
         </test>
     </tests>
 </config>
+

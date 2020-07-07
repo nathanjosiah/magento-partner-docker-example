@@ -55,9 +55,10 @@ class Composer implements StrategyInterface
         $composerPassword = getenv('MAGE_COMPOSER_PASSWORD');
         $installConfig = $config->getInstallConfig();
         $package = $installConfig['package'] . ':' . $installConfig['version'];
+        $path = $installConfig['path'];
         $phpVersion = $config->getServiceOption(ConfigInterface::PHASE_FROM, 'php', 'version');
 
-        $this->logger->info('Installing ' . $phpVersion);
+        $this->logger->info("Installing $phpVersion to $path");
         mkdir('/magento/.composer');
 
         file_put_contents('/magento/.composer/auth.json',
@@ -74,10 +75,9 @@ COMPOSER
         );
 
         $this->phpExecutor->runCommand(
-            'composer create-project --repository-url=https://repo.magento.com/ ' . $package . ' /magento/magento-ce',
+            "composer create-project --repository-url=https://repo.magento.com/ $package $path",
             $phpVersion
         );
-
-        $this->shelExecutor->exec('chmod -R 777 /magento/magento-ce');
+        $this->shelExecutor->exec("chmod -R 777 $path");
     }
 }

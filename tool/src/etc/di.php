@@ -24,7 +24,6 @@ return [
                         \Magento\UpgradeTool\GetPhpTestVersion::class,
                         \Magento\UpgradeTool\RunMftfTest::class,
                         \Magento\UpgradeTool\RunUnitTests::class,
-                        \Magento\UpgradeTool\SetupInstall::class,
                         \Magento\UpgradeTool\BuildEnvironment::class,
                     ]
                 )

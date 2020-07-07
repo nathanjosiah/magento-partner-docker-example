@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="config">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="magento">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="install">
+                                <xs:complexType>
+                                    <xs:all>
+                                        <xs:element name="admin-firstname" type="xs:string" />
+                                        <xs:element name="admin-lastname" type="xs:string" />
+                                        <xs:element name="admin-email" type="xs:string" />
+                                        <xs:element name="admin-user" type="xs:string" />
+                                        <xs:element name="admin-password" type="xs:string" />
+                                        <xs:element name="base-url" type="xs:anyURI" />
+                                        <xs:element name="db-host" type="xs:string" />
+                                        <xs:element name="db-name" type="xs:string" />
+                                        <xs:element name="db-user" type="xs:string" />
+                                        <xs:element name="db-password" type="xs:string" />
+                                        <xs:element name="currency">
+                                            <xs:simpleType>
+                                                <xs:restriction base="xs:string">
+                                                    <xs:length value="3" />
+                                                </xs:restriction>
+                                            </xs:simpleType>
+                                        </xs:element>
+                                        <xs:element name="timezone" type="xs:string" />
+                                        <xs:element name="language" type="xs:string" />
+                                        <xs:element name="backend-frontname" type="xs:string" minOccurs="0" />
+                                        <xs:element name="use-rewrites" type="xs:string" minOccurs="0" />
+                                    </xs:all>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

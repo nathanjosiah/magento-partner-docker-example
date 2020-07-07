@@ -56,6 +56,12 @@ class AbstractCommand extends Command
             InputOption::VALUE_REQUIRED,
             'Which PHP version to use'
         );
+        $this->addOption(
+            'config',
+            'c',
+            InputOption::VALUE_REQUIRED,
+            'The path to the config'
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -69,8 +75,12 @@ class AbstractCommand extends Command
         $this->logger->info($message);
     }
 
-    protected function runPhp(string $command, string $phpVersion = null): void
+    protected function runPhp(string $command, string $phpVersion = null, string $path = null): void
     {
+        // Change default directory to make sure that both absolute and relative commands work
+        if ($path) {
+            chdir($path);
+        }
         $this->phpExecutor->runCommand($command, $phpVersion ?: $this->phpVersion);
     }
 }
